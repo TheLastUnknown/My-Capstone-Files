@@ -27,6 +27,8 @@ var friction = .8;
 var gravity = .2;
 var inAir = Boolean(false);
 
+var testPlatform;
+
 //opens a canvas and tells CreateJS to use it as a Stage. Remember, CreateJS does everything on it's stage similar to the way ActionScript works.
 function openCanvas() {
     
@@ -68,6 +70,7 @@ function loop() {
     switchGameState();
 	movePlayer();
     checkAnimation();
+    collisionTest();
 	stage.update();
     //console.log(GAME_STATE);
 }
@@ -150,12 +153,12 @@ function keyDownTest(e)
     if(!e){ var e = window.event;}
     switch(e.keyCode)
     {
-            case KEY_A: console.log("A down"); moveLeft = true; moveRight = false; break;
-            case KEY_W: console.log("W down"); moveUp = true; break;
-            case KEY_S: console.log("S down"); break;
-            case KEY_D: console.log("D down"); moveLeft = false; moveRight = true; break;
-            case KEY_SPACE: console.log("Space down"); break;
-            case KEY_ENT: console.log("Enter down"); break;
+            case KEY_A: moveLeft = true; moveRight = false; break;
+            case KEY_W: moveUp = true; break;
+            case KEY_S: break;
+            case KEY_D: moveLeft = false; moveRight = true; break;
+            case KEY_SPACE: break;
+            case KEY_ENT: break;
 			case KEY_END: console.log("End Game"); GAME_STATE = "gameOver"; break;
     }
 }
@@ -165,10 +168,10 @@ function keyUpTest(e)
     if(!e){ var e = window.event;}
     switch(e.keyCode)
     {
-            case KEY_A: console.log("A up"); moveLeft = false; moveRight = false; break;
-            case KEY_W: console.log("W up"); moveUp = false; break;
-            case KEY_S: console.log("S up"); break;
-            case KEY_D: console.log("D up"); moveLeft = false; moveRight = false;break;
+            case KEY_A: moveLeft = false; moveRight = false; break;
+            case KEY_W: moveUp = false; break;
+            case KEY_S: break;
+            case KEY_D: moveLeft = false; moveRight = false;break;
             case KEY_SPACE: console.log("Space up"); break;
             case KEY_ENT: console.log("Enter up"); break;
     }
@@ -201,6 +204,9 @@ function loadComplete(evt)
     
     player = new createjs.Sprite(playerSprites);
     
+    testPlatform = new createjs.Bitmap(queue.getResult("platTest"));
+    
+    
     //setPlayer();
     
 //	displaySprites();
@@ -215,7 +221,8 @@ fileManifest = [
                 {src:"play.png", id:"playButton"},
                 {src:"menu.png", id:"menuButton"},
                 {src:"tutorial.png", id:"tutorialButton"},
-                {src:"NewSprites.png", id:"PlayerSprites"}
+                {src:"NewSprites.png", id:"PlayerSprites"},
+                {src:"platformTest.png", id:"platTest"}
             ];
 			
 //This function loadeds all the files in fileManifest and will rught loadComplete when it is finished. You can also get progress information. There are examples how to do this in preloadJS.
@@ -230,6 +237,8 @@ function setPlayer()
 {
 	player.x = CANVAS_WIDTH/2;
 	player.y = CANVAS_HEIGHT-20;
+    player.height = player.getBounds().height;
+    player.width = player.getBounds().width;
 	player.speed = 3;
 	player.velX = 0;
 	player.velY = 0;
@@ -300,11 +309,11 @@ function instructScreen()
         stage.addChild(instructionScreen);
         
         var menu =  new createjs.Bitmap(queue.getResult("menuButton"));
-    menuButton = new createjs.Container();
-    menuButton.name = "menuButton";
-    menuButton.x = 350;
-    menuButton.y = 200;
-    menuButton.addChild(menu);
+        menuButton = new createjs.Container();
+        menuButton.name = "menuButton";
+        menuButton.x = 350;
+        menuButton.y = 200;
+        menuButton.addChild(menu);
         
         menuButton.addEventListener("click", instructScreen);
         
@@ -339,9 +348,20 @@ function init() {
     GAME_STATE = "inGame";
     stage.removeChild(title);
     unloadStartButtons();
+    loadLevel();
 	setPlayer();
+    
     startLoop();
 	
+}
+
+//world
+function loadLevel()
+{
+    testPlatform.x = CANVAS_WIDTH/3;
+    testPlatform.y = CANVAS_HEIGHT - 50;
+    
+    stage.addChild(testPlatform);
 }
 
 //gameplay
@@ -365,6 +385,7 @@ function moving()
 	if(player.velX > -player.speed && moveLeft)
 	{
 		player.velX--;
+        
 	}
 	else if(player.velX < player.speed&& moveRight)
 	{
@@ -411,6 +432,8 @@ var anim = "";
 
 function checkAnimation()
 {
+    flipSprite();
+    
     if(inAir)
     {
         if(player.velY < 0)
@@ -526,7 +549,70 @@ function checkAnimation()
     }
 }
 
-function collision()
+var flipped = Boolean(false);
+function flipSprite()
 {
+    if(moveLeft && !flipped)
+    {
+        player.scaleX *= -1;
+        flipped = true;
+        stage.update();
+    }
+    else if(moveRight && flipped)
+    {
+        player.scaleX *= -1;
+        flipped = false;
+        stage.update();
+    }
+}
+
+function collisionIntersect(rect1, rect2, x,y)
+{
+    x = x || 0;
+    y = y || 0;
     
+    var dx, dy, r1={},r2={};
+    r1.cx = rect1.x+x+(r1.hw = (rect1.width/2));
+    r1.cy = rect1.y+y+(r1.hh = (rect1.height/2));
+    r2.cx = rect2.x+x+(r2.hw = (rect2.width/2));
+    r2.cy = rect2.y+y+(r2.hh = (rect2.height/2));
+    
+    dx = Math.abs(r1.cx - r2.cx) - (r1.hw + r2.hw);
+    dy = Math.abs(r1.cy - r2.cy) - (r1.hh + r2.hh);
+    
+    if(dx < 0 && dy < 0)
+    {
+        return {width:-dx,height:-dy};
+    }
+    else
+    {
+        return null;
+    }
+}
+
+function collisionTest()
+{
+    var intersection = ndgmr.checkRectCollision(player,testPlatform);
+    if(intersection != null)
+    {
+        //console.log(player.y + player.height);
+        if((player.y + player.height) > testPlatform.y)
+        {
+            console.log("stopFall");
+            player.velY = 0;
+            inAir = false;
+            player.jumping = false;
+        }
+        else if(player.y < (testPlatform.y + testPlatform.height))
+        {
+            
+        }
+        
+        if((player.x + player.width) > testPlatform.x)
+        {
+            player.velX = 0;
+            moveRight = false;
+            player.x = testPlatform.x;
+        }
+    }
 }
