@@ -4,10 +4,10 @@ var CANVAS_WIDTH = 900;
 var CANVAS_HEIGHT = 500;
 var FPS = 60;
 var GAME_STATE = 'start';
-var time=0;
+var time = 0;
 var score = 0;
 //Key codes: A=65, W=87, D=68, S=83, Space=32, Enter=13
-var KEY_A=65, KEY_W=87, KEY_D=68, KEY_S=83, KEY_SPACE=32, KEY_ENT=13, KEY_END=80;
+var KEY_A = 65, KEY_W = 87, KEY_D = 68, KEY_S = 83, KEY_SPACE = 32, KEY_ENT = 13, KEY_END = 80;
 
 document.onkeydown = keyDownTest;
 document.onkeyup = keyUpTest;
@@ -21,7 +21,7 @@ var mouseX, mouseY, timer, scoreCount;
 var title, instructionScreen, gameOver;
 var playButton, tutorialButton, menuButton; //Menu Buttons
 
-var player;
+var player, spot;
 var playerVelX, playerVelY;
 var friction = .8;
 var gravity = .2;
@@ -70,7 +70,6 @@ function loop() {
     switchGameState();
 	movePlayer();
     checkAnimation();
-    collisionTest();
 	stage.update();
     //console.log(GAME_STATE);
 }
@@ -236,17 +235,21 @@ function loadFiles() {
 function setPlayer()
 {
 	player.x = CANVAS_WIDTH/2;
-	player.y = CANVAS_HEIGHT-20;
+	player.y = CANVAS_HEIGHT;
     player.height = player.getBounds().height;
     player.width = player.getBounds().width;
 	player.speed = 3;
 	player.velX = 0;
 	player.velY = 0;
 	player.jumping = false;
+    player.grounded = true;
+    
+    player.snapToPixel = true;
     
     player.gotoAndPlay("stand");
 	
 	stage.addChild(player);
+    
 	stage.update();
 }
 
@@ -359,7 +362,13 @@ function init() {
 function loadLevel()
 {
     testPlatform.x = CANVAS_WIDTH/3;
-    testPlatform.y = CANVAS_HEIGHT - 50;
+    testPlatform.y = CANVAS_HEIGHT - 25;
+    var bounds = testPlatform.getBounds();
+    
+    testPlatform.width = testPlatform.getBounds().width;
+    testPlatform.height = testPlatform.getBounds().height;
+    testPlatform.regX = testPlatform.width/2;
+    testPlatform.regY = testPlatform.height/2;
     
     stage.addChild(testPlatform);
 }
@@ -367,14 +376,22 @@ function loadLevel()
 //gameplay
 function movePlayer()
 {
+    checkPlayer();
+    playerCollision();
 	moving();
+    
+    
 	player.x += player.velX;
 	player.y += player.velY;
-		
-	player.velX *= friction;
+
+    player.velX *= friction;
 	player.velY += gravity;
 		
-	checkPlayer();
+    if(player.grounded)
+    {
+        player.velY = 0;
+    }
+	
 }
 
 
@@ -394,14 +411,16 @@ function moving()
 	if(!player.jumping && moveUp)
 	{
 		player.jumping=true;
+        player.grounded = false;
         inAir = true;
 		player.velY = -player.speed*2;
 	}
-    else if(inAir && !moveUp)
+    else if(!player.grounded && !moveUp)
     {
-        
         player.velY += 0.4;
     }
+    
+   
 }
 
 function checkPlayer()
@@ -415,16 +434,132 @@ function checkPlayer()
 		player.x = 0;
 	}
 	
-	if(player.y >= CANVAS_HEIGHT-10)
+	if(player.y >= CANVAS_HEIGHT-20)
 	{
-		player.y = CANVAS_HEIGHT - 10;
+		player.y = CANVAS_HEIGHT-20;
 		player.jumping = false;
+        player.grounded = true;
         inAir = false;
 	}
 	else if(player.y <= 0)
 	{
 		player.y = 0;
 	}
+    
+    
+    
+}
+
+function playerCollision()
+{
+    
+    var col = collisionIntersect(player, testPlatform, player.velX, player.velY);
+    
+    var blankx = player.x;
+    var blanky = player.y;
+    
+    if(!col)
+    {
+        if(player.grounded && player.y < CANVAS_HEIGHT-20)
+        {
+            player.grounded = false;
+        }
+    }
+    else
+    {
+        //console.log(player.x + col.width + "," + (testPlatform.x + (testPlatform.width)));
+        
+        if(Math.floor(player.x+player.width)-5 > testPlatform.x && Math.floor(player.x)+5 < (testPlatform.x + testPlatform.width))
+        {
+            //console.log("inbetween");
+            if(Math.floor(player.y + col.height) >= (testPlatform.y + testPlatform.height))
+            {
+                console.log("bottom");
+            }
+            else if(Math.floor((player.y+player.height) - col.height) <= (testPlatform.y))
+            {
+                console.log("top");
+                player.y = testPlatform.y - player.height+5;
+                player.grounded = true;
+                player.jumping = false;
+            }
+            else
+            {
+                player.grounded = false;
+            }
+        }
+        else if(Math.floor(player.x + col.width) >= (testPlatform.x + (testPlatform.width)))
+        {
+            console.log("stop");
+            player.x = testPlatform.x + (testPlatform.width);
+        }
+        else if(Math.floor((player.x+player.width) - col.width) <= (testPlatform.x))
+        {
+            console.log("stop2");
+            player.x = testPlatform.x - player.width -col.width;
+        }
+    }
+    
+    /*var playerLeft = Math.floor(player.x);
+    var playerBottom = Math.floor(player.y);
+    var playerRight = Math.floor(player.x + player.width);
+    var playerTop = Math.floor(player.y+player.height);
+    
+    var platLeft = Math.floor(testPlatform.x);
+    var platTop = Math.floor(testPlatform.y);
+    var platRight = Math.floor(testPlatform.x + testPlatform.width); 
+    var platBottom = Math.floor(testPlatform.y+testPlatform.height);
+    
+    
+    if(!((playerBottom < platTop)|| (playerTop > platBottom)||(playerLeft > platRight)||(playerRight < platLeft)))
+    {
+        var checking = "";
+        if(!(playerBottom < platTop))
+        {
+            checking += "player on top";
+        }
+        if(!(playerTop > platBottom))
+        {
+            checking += "player on bottom";
+        }
+        if(!(playerLeft > platRight))
+        {
+            checking += "player to right";
+        }
+        if((playerRight < platLeft))
+        {
+            checking += "player to left";
+        }
+        console.log("collision " + checking);
+    }*/
+    
+} 
+
+function playersCollision()
+{
+    
+    var dir = colliding(player,testPlatform);
+    
+    //console.log(dir);
+    
+    if(dir === "l" || dir === "r")
+    {
+        player.velX = 0;
+        player.jumping = false;
+        
+    }
+    else if(dir === "b")
+    {
+        //inAir = false;
+        
+        player.grounded = true;
+        player.jumping = false;
+    }
+    else if(dir === "t")
+    {
+        player.velY *= -1;
+    }
+    
 }
 
 var playing = Boolean(false);
@@ -432,9 +567,11 @@ var anim = "";
 
 function checkAnimation()
 {
+    //player.regX = player.getBounds().width/2;
+    //player.regY = player.getBounds().height/2;
     flipSprite();
     
-    if(inAir)
+    if(!player.grounded)
     {
         if(player.velY < 0)
         {
@@ -580,6 +717,8 @@ function collisionIntersect(rect1, rect2, x,y)
     dx = Math.abs(r1.cx - r2.cx) - (r1.hw + r2.hw);
     dy = Math.abs(r1.cy - r2.cy) - (r1.hh + r2.hh);
     
+    //console.log(r2.hw + "," + r2.hh);
+    
     if(dx < 0 && dy < 0)
     {
         return {width:-dx,height:-dy};
@@ -590,29 +729,182 @@ function collisionIntersect(rect1, rect2, x,y)
     }
 }
 
-function collisionTest()
+function fullCollisionCheck()
 {
-    var intersection = ndgmr.checkRectCollision(player,testPlatform);
-    if(intersection != null)
+    
+    var move = {x:0,y:player.velY};
+    
+    var collision = reinterprate(player,testPlatform,'y',move);
+    
+    player.y += move.y;
+    
+    if(!collision)
     {
-        //console.log(player.y + player.height);
-        if((player.y + player.height) > testPlatform.y)
+       if(inAir)
+       {
+         player.jumping = true;  
+       }
+    }
+    else
+    {
+        //console.log(collision.height + "," + collision.width);
+        //console.log("top");
+        if(move.y > 0)
         {
-            console.log("stopFall");
-            player.velY = 0;
-            inAir = false;
             player.jumping = false;
+            inAir = false;
         }
-        else if(player.y < (testPlatform.y + testPlatform.height))
-        {
-            
-        }
-        
-        if((player.x + player.width) > testPlatform.x)
-        {
-            player.velX = 0;
-            moveRight = false;
-            player.x = testPlatform.x;
-        }
+        player.velY = 0;
+    }
+    
+    move = {x:player.velX, y:0};
+    collision = reinterprate(player,testPlatform,'x',move);
+    player.x += move.x;
+    
+    
+}
+
+function collisionDirection(player, direction, platform, move)
+{
+    
+    
+    move = move || {addX:0,addY:0};
+    
+    var measure = direction == 'x' ? 'width' : 'height',
+        oppositeDirection = direction == 'x' ? 'y' : 'x',
+        oppositeMeasure = direction == 'x' ? 'height' : 'width';
+    
+    collision = collisionIntersect(player, testPlatform, move.addX, move.addY);
+    
+    
+    if(collision)
+    {
+        var sign = Math.abs(move[direction]) / move[direction];
     }
 }
+
+//I need to write this out in real words to understand it
+function reinterprate(player, platform, direction, move)
+{
+    move = move || {x:0,y:0};
+    
+    if(direction != 'x' && direction != 'y')
+    {
+        direction = 'x';
+        
+    }
+    
+    var measureDir = direction == 'x' ? 'width' : 'height';
+    var opposideDir = direction == 'x' ? 'y' : 'x';
+    var opposideMeasure = direction == 'x' ? 'height' : 'width';
+    
+    var collision = collisionIntersect(player,platform,move.x,move.y);
+    
+    if(!collision && platform.isVisible)
+    {
+        var checkForward = (player[direction] < platform[direction] && player[direction] + move[direction] > platform[direction]);
+        var checkBackward = (player[direction] > platform[direction] && player[direction] + move[direction] < platform[direction]);
+        var checkOppositeMove = !(player[opposideDir] < platform[opposideMeasure] && player[opposideDir] + move[opposideDir] > platform[opposideMeasure]);
+
+        if((checkForward || checkBackward) && checkOppositeMove)
+        {
+            move[direction] = platform[direction] - player[direction];
+        }
+        
+        if(checkForward)
+        {
+            console.log(direction + " forward");
+        }
+        
+        if(checkBackward)
+        {
+            console.log(direction + " backward");
+        }
+        
+        if(!checkOppositeMove)
+        {
+            console.log(direction + " opposite");
+        }
+    }
+    
+    if(collision)
+    {
+        var sign = Math.abs(move[direction]) / move[direction];
+        move[direction] -= collision[measureDir] * sign;
+    }
+    
+    //console.log(direction + "," + move.x + "," + move.y);
+    return collision;
+    
+}
+
+function collideX(player, platform, velX)
+{
+    
+}
+
+function collideY(player, platform, velY)
+{
+    
+}
+
+function collisionTest()
+{
+    var intersection = ndgmr.checkPixelCollision(player,testPlatform,1,true);
+    if(intersection)
+    {
+        
+        console.log(intersection);
+        
+        
+    }
+}
+
+function colliding(part1, part2)
+{
+    var vX = (part1.x + (part1.width / 2)) - (part2.x + (part2.width / 2));
+    var vY = (part1.y + (part1.height / 2)) - (part2.y + (part2.height / 2));
+    
+    var hWidths = (part1.width / 2) + (part2.width / 2);
+    var hHeights = (part1.height / 2) + (part2.height / 2);
+    var colDir = null;
+    
+    if(Math.abs(vX) < hWidths && Math.abs(vY) < hHeights)
+    {
+        var oX = hWidths - Math.abs(vX),
+            oY = hHeights - Math.abs(vY);
+        
+        if(oX >= oY)
+        {
+            if(vY > 0)
+            {
+                colDir = 't';
+                //part1.y += oY;
+                return colDir;
+            }
+            else
+            {
+                colDir = 'b';
+                //part1.y -= oY;
+                return colDir;
+            }
+        }
+        else
+        {
+            if(vX > 0)
+            {
+                colDir = 'l';
+                //part1.y += oX;
+                return colDir;
+            }
+            else
+            {
+                colDir = 'r';
+                //part1.y -= oX;
+                return colDir;
+            }
+        }
+        
+    }
+}
+    
