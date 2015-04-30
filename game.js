@@ -1030,4 +1030,6 @@ function attackCollision()
     });
     
     //stage.removeChild(attackbox);
+
 }
+
