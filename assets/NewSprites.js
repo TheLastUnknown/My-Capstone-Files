@@ -54,10 +54,43 @@ Stand_p.initialize = function() {
 	this.paused = false;
 }
 window.Stand = Stand;
+ZX_Dash_1 = function() {
+	this.initialize();
+}
+ZX_Dash_1._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[546,600,44,38,0,22.05,20.2],[590,600,44,38,0,22.05,20.2]]});
+var ZX_Dash_1_p = ZX_Dash_1.prototype = new createjs.Sprite();
+ZX_Dash_1_p.Sprite_initialize = ZX_Dash_1_p.initialize;
+ZX_Dash_1_p.initialize = function() {
+	this.Sprite_initialize(ZX_Dash_1._SpriteSheet);
+	this.paused = false;
+}
+window.ZX_Dash_1 = ZX_Dash_1;
+ZX_Dash_2 = function() {
+	this.initialize();
+}
+ZX_Dash_2._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[634,600,47,52,0,25.9,29.15],[681,600,47,52,0,25.9,29.15],[728,600,47,52,0,25.9,29.15],[775,600,47,52,0,25.9,29.15]]});
+var ZX_Dash_2_p = ZX_Dash_2.prototype = new createjs.Sprite();
+ZX_Dash_2_p.Sprite_initialize = ZX_Dash_2_p.initialize;
+ZX_Dash_2_p.initialize = function() {
+	this.Sprite_initialize(ZX_Dash_2._SpriteSheet);
+	this.paused = false;
+}
+window.ZX_Dash_2 = ZX_Dash_2;
+ZX_Dash_3 = function() {
+	this.initialize();
+}
+ZX_Dash_3._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[822,600,42,38,0,20.75,21.1],[864,600,42,38,0,20.75,21.1]]});
+var ZX_Dash_3_p = ZX_Dash_3.prototype = new createjs.Sprite();
+ZX_Dash_3_p.Sprite_initialize = ZX_Dash_3_p.initialize;
+ZX_Dash_3_p.initialize = function() {
+	this.Sprite_initialize(ZX_Dash_3._SpriteSheet);
+	this.paused = false;
+}
+window.ZX_Dash_3 = ZX_Dash_3;
 ZX_Jump_1 = function() {
 	this.initialize();
 }
-ZX_Jump_1._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[546,600,40,47,0,20.15,27],[586,600,40,47,0,20.15,27],[626,600,40,47,0,20.15,27],[666,600,40,47,0,20.15,27]]});
+ZX_Jump_1._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[906,600,40,47,0,20.15,27],[946,600,40,47,0,20.15,27],[0,652,40,47,0,20.15,27],[40,652,40,47,0,20.15,27]]});
 var ZX_Jump_1_p = ZX_Jump_1.prototype = new createjs.Sprite();
 ZX_Jump_1_p.Sprite_initialize = ZX_Jump_1_p.initialize;
 ZX_Jump_1_p.initialize = function() {
@@ -68,7 +101,7 @@ window.ZX_Jump_1 = ZX_Jump_1;
 ZX_Jump_2 = function() {
 	this.initialize();
 }
-ZX_Jump_2._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[706,600,34,45,0,19,22.4],[740,600,34,45,0,19,22.4],[774,600,34,45,0,19,22.4],[808,600,34,45,0,19,22.4]]});
+ZX_Jump_2._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[80,652,34,45,0,19,22.4],[114,652,34,45,0,19,22.4],[148,652,34,45,0,19,22.4],[182,652,34,45,0,19,22.4]]});
 var ZX_Jump_2_p = ZX_Jump_2.prototype = new createjs.Sprite();
 ZX_Jump_2_p.Sprite_initialize = ZX_Jump_2_p.initialize;
 ZX_Jump_2_p.initialize = function() {
@@ -79,7 +112,7 @@ window.ZX_Jump_2 = ZX_Jump_2;
 ZX_Jump_3 = function() {
 	this.initialize();
 }
-ZX_Jump_3._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[842,600,41,45,0,22.6,22.8],[883,600,41,45,0,22.6,22.8],[924,600,41,45,0,22.6,22.8]]});
+ZX_Jump_3._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[216,652,41,45,0,22.6,22.8],[257,652,41,45,0,22.6,22.8],[298,652,41,45,0,22.6,22.8]]});
 var ZX_Jump_3_p = ZX_Jump_3.prototype = new createjs.Sprite();
 ZX_Jump_3_p.Sprite_initialize = ZX_Jump_3_p.initialize;
 ZX_Jump_3_p.initialize = function() {
@@ -90,7 +123,7 @@ window.ZX_Jump_3 = ZX_Jump_3;
 ZX_Jump_4 = function() {
 	this.initialize();
 }
-ZX_Jump_4._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[965,600,37,46,0,18.15,25.65],[0,647,37,46,0,18.15,25.65],[37,647,37,46,0,18.15,25.65],[74,647,37,46,0,18.15,25.65]]});
+ZX_Jump_4._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[339,652,37,46,0,18.15,25.65],[376,652,37,46,0,18.15,25.65],[413,652,37,46,0,18.15,25.65],[450,652,37,46,0,18.15,25.65]]});
 var ZX_Jump_4_p = ZX_Jump_4.prototype = new createjs.Sprite();
 ZX_Jump_4_p.Sprite_initialize = ZX_Jump_4_p.initialize;
 ZX_Jump_4_p.initialize = function() {
@@ -101,7 +134,7 @@ window.ZX_Jump_4 = ZX_Jump_4;
 ZX_Jump_5 = function() {
 	this.initialize();
 }
-ZX_Jump_5._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[111,647,38,46,0,16.75,27.75],[149,647,38,46,0,16.75,27.75]]});
+ZX_Jump_5._SpriteSheet = new createjs.SpriteSheet({images: ["NewSprites.png"], frames: [[487,652,38,46,0,16.75,27.75],[525,652,38,46,0,16.75,27.75]]});
 var ZX_Jump_5_p = ZX_Jump_5.prototype = new createjs.Sprite();
 ZX_Jump_5_p.Sprite_initialize = ZX_Jump_5_p.initialize;
 ZX_Jump_5_p.initialize = function() {

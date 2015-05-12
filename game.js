@@ -4,10 +4,11 @@ var CANVAS_WIDTH = 900;
 var CANVAS_HEIGHT = 500;
 var FPS = 60;
 var GAME_STATE = 'start';
-var time = 0;
+var gameTimer = 0;
+var frameCount = 0;
 var score = 0;
 //Key codes: A=65, W=87, D=68, S=83, Space=32, Enter=13
-var KEY_A = 65, KEY_W = 87, KEY_D = 68, KEY_S = 83, KEY_SPACE = 32, KEY_ENT = 13, KEY_END = 80, KEY_J = 74;
+var KEY_A = 65, KEY_W = 87, KEY_D = 68, KEY_S = 83, KEY_SPACE = 32, KEY_ENT = 13, KEY_END = 80, KEY_J = 74, KEY_K = 75;
 
 var DOWN = "D", RIGHT = "R", LEFT="L", UP="U", REDOWN="~D", RERIGHT="~R", RELEFT="~L", REUP="~U";
 
@@ -28,8 +29,11 @@ var playerVelX, playerVelY;
 var friction = .8;
 var gravity = .2;
 var inAir = Boolean(false);
+var MAX_HEALTH = 10;
 
-var testPlatform;
+var healthBar, healthHeight;
+
+var testPlatform, testEnemy;
 
 //opens a canvas and tells CreateJS to use it as a Stage. Remember, CreateJS does everything on it's stage similar to the way ActionScript works.
 function openCanvas() {
@@ -70,12 +74,19 @@ function displaySprites() {
 //This is the loop that updates the stage every frame. Remember, any changes you make to the stage don't show up until update is called.
 function loop() {
     switchGameState();
+    runGameTimer();
 	movePlayer();
     checkAnimation();
     keyQueue();
     multiKeys();
     checkFPS();
 	stage.update();
+    
+    if(player.health <= 0)
+    {
+        GAME_STATE = "gameOver";
+    }
+    
     //console.log(GAME_STATE);
 }
 
@@ -102,7 +113,19 @@ function checkFPS()
 
 }
 
+function resetGameTimer()
+{
+    gameTimer = 0;
+}
 
+function runGameTimer()
+{
+    frameCount += 1;
+    if(frameCount%(FPS/10) === 0)
+    {
+        gameTimer = frameCount/FPS;
+    }
+}
 
 function switchGameState()
 {
@@ -172,27 +195,32 @@ function multiKeys(e)
     
     if(moreKeys[KEY_A])
     {
-        moveLeft = true; moveRight = false; pressedKeys.push(KEY_A);
+        moveLeft = true; moveRight = false;
     }
     
     if(moreKeys[KEY_S])
     {
-        pressedKeys.push(KEY_S);
+        
     }
     
     if(moreKeys[KEY_D])
     {
-        moveLeft = false; moveRight = true; pressedKeys.push(KEY_D);
+        moveLeft = false; moveRight = true;
     }
     
     if(moreKeys[KEY_W])
     {
-        moveUp = true; pressedKeys.push(KEY_W);
+        moveUp = true;
     }
     
     if(moreKeys[KEY_J])
     {
-        attacking = true; pressedKeys.push(KEY_J);
+        attacking = true;
+    }
+    
+    if(moreKeys[KEY_K])
+    {
+        dashing = true;
     }
     
     if(!moreKeys[KEY_A])
@@ -220,28 +248,36 @@ function multiKeys(e)
         //attacking = true; pressedKeys.push(KEY_J);
     }
     
+    if(!moreKeys[KEY_K])
+    {
+        //player.dashing = false;
+    }
+    
+    keyQueue();
 }
 
-function keyDownTest(e)
+function keyDownTest(se)
 {
-    /*
     if(!e){ var e = window.event;}
     switch(e.keyCode)
     {
-            case KEY_A: moveLeft = true; moveRight = false; pressedKeys.push(KEY_A); break;
-            case KEY_W: moveUp = true; pressedKeys.push(KEY_W); break;
+            case KEY_A: pressedKeys.push(KEY_A); break;
+            case KEY_W: pressedKeys.push(KEY_W); break;
             case KEY_S: pressedKeys.push(KEY_S); break;
-            case KEY_D: moveLeft = false; moveRight = true; pressedKeys.push(KEY_D); break;
+            case KEY_D: pressedKeys.push(KEY_D); break;
             case KEY_SPACE: break;
             case KEY_ENT: break;
-			case KEY_END: console.log("End Game"); GAME_STATE = "gameOver"; break;
-            case KEY_J: attacking = true; pressedKeys.push(KEY_J); break;
+			case KEY_END: break;
+            case KEY_J: pressedKeys.push(KEY_J); break;
+            case KEY_K: pressedKeys.push(KEY_K); break;
     }
-    */
+    
 }
 
 function keyUpTest(e)
 {
+    window.clearTimeout(clearKeysArray);
+    window.setTimeout(clearKeysArray,500);
     /*
     if(!e){ var e = window.event;}
     switch(e.keyCode)
@@ -257,11 +293,105 @@ function keyUpTest(e)
     */
 }
 
+var combos = [];
+
 function keyQueue()
+{
+    
+    for(var i = 0; i < combos.length; i++)
+    {
+        if(pressedKeys.toString().indexOf(combos[i]) >= 0)
+        {
+            console.log(pressedKeys);
+            console.log("combo " + i + " entered");
+            pressedKeys = [];
+        }
+    }
+    
+    /*
+    
+    var konami = '87,87,83,83,65,68,65,68,74,75';
+    
+    if(pressedKeys.toString().indexOf(konami) >= 0)
+    {
+        console.log("konami code entered");
+        pressedKeys = [];
+    }
+    
+    var newArray = [];
+    var passedArray = [];
+    var chosenCombo=[];
+    //get key pressed
+    var bleh = pressKeys.pop(); //Note: this will get the most recent key pressed. Be wary
+    //check possible sequences for first key
+    
+    
+    
+    if(matchFound)
+    {
+        
+    }
+    else
+    {
+        //clear newArray
+        
+        //clear passedArray if elements exist
+        pressedKeys = [];
+    }
+    */
+}
+
+function declareCombos()
+{
+    var QCF = '83,68,74';
+    var DP = '68,83,68,74';
+    var HCF = '65,83,68,74';
+    var DQCF = '83,68,83,68,74';
+    var BF = '65,68,74';
+    var konami = '87,87,83,83,65,68,65,68,74,75';
+    
+    combos.push(HCF);
+    combos.push(BF);
+    
+    combos.push(DQCF);
+    
+    combos.push(DP);
+    
+    combos.push(QCF);
+    
+    
+    combos.push(konami);
+}
+
+function getPossibleCombos(num)
+{
+    var returnedCombo = [];
+    
+    for(var i = 0; i < combos.length; i++)
+    {
+        if(combos[i][0] == num)
+        {
+            returnedCombo.push(combos[i]);
+        }
+    }
+    
+    return returnedCombo;
+}
+
+function fullComboMatch(a,b)
 {
     
 }
 
+function checkKonamiCode()
+{
+    
+}
+
+function clearKeysArray()
+{
+    pressedKeys = [];
+}
 
 //Loading
 function loadComplete(evt) 
@@ -273,7 +403,7 @@ function loadComplete(evt)
     
     var playerSprites = new createjs.SpriteSheet({
         images: [queue.getResult("PlayerSprites")],
-        frames: [[740,528,39,45,0,18.85,22.65],[779,528,39,45,0,18.85,22.65],[818,528,39,45,0,18.85,22.65],[857,528,39,45,0,18.85,22.65],[896,528,39,45,0,18.85,22.65],[935,528,39,45,0,18.85,22.65],[974,528,39,45,0,18.85,22.65],[0,600,39,45,0,18.85,22.65],[39,600,39,45,0,18.85,22.65],[78,600,39,45,0,18.85,22.65],[117,600,39,45,0,18.85,22.65],[156,600,39,45,0,18.85,22.65],[195,600,39,45,0,18.85,22.65],[234,600,39,45,0,18.85,22.65],[273,600,39,45,0,18.85,22.65],[312,600,39,45,0,18.85,22.65],[351,600,39,45,0,18.85,22.65],[390,600,39,45,0,18.85,22.65],[429,600,39,45,0,18.85,22.65],[468,600,39,45,0,18.85,22.65],[507,600,39,45,0,18.85,22.65],[0,0,44,41,0,23.1,19.2],[44,0,44,41,0,23.1,19.2],[88,0,44,41,0,23.1,19.2],[132,0,44,41,0,23.1,19.2],[176,0,44,41,0,23.1,19.2],[220,0,44,41,0,23.1,19.2],[264,0,44,41,0,23.1,19.2],[308,0,44,41,0,23.1,19.2],[352,0,44,41,0,23.1,19.2],[396,0,44,41,0,23.1,19.2],[440,0,44,41,0,23.1,19.2],[546,600,40,47,0,20.15,27],[586,600,40,47,0,20.15,27],[626,600,40,47,0,20.15,27],[666,600,40,47,0,20.15,27],[706,600,34,45,0,19,22.4],[740,600,34,45,0,19,22.4],[774,600,34,45,0,19,22.4],[808,600,34,45,0,19,22.4],[842,600,41,45,0,22.6,22.8],[883,600,41,45,0,22.6,22.8],[924,600,41,45,0,22.6,22.8],[965,600,37,46,0,18.15,25.65],[0,647,37,46,0,18.15,25.65],[37,647,37,46,0,18.15,25.65],[74,647,37,46,0,18.15,25.65],[111,647,38,46,0,16.75,27.75],[149,647,38,46,0,16.75,27.75],[484,0,63,45,0,20.35,22.55],[547,0,63,45,0,20.35,22.55],[610,0,63,45,0,20.35,22.55],[673,0,63,45,0,20.35,22.55],[736,0,63,45,0,20.35,22.55],[799,0,63,45,0,20.35,22.55],[862,0,63,45,0,20.35,22.55],[925,0,63,45,0,20.35,22.55],[0,45,63,45,0,20.35,22.55],[63,45,63,45,0,20.35,22.55]],
+        frames: [[740,528,39,45,0,18.85,22.65],[779,528,39,45,0,18.85,22.65],[818,528,39,45,0,18.85,22.65],[857,528,39,45,0,18.85,22.65],[896,528,39,45,0,18.85,22.65],[935,528,39,45,0,18.85,22.65],[974,528,39,45,0,18.85,22.65],[0,600,39,45,0,18.85,22.65],[39,600,39,45,0,18.85,22.65],[78,600,39,45,0,18.85,22.65],[117,600,39,45,0,18.85,22.65],[156,600,39,45,0,18.85,22.65],[195,600,39,45,0,18.85,22.65],[234,600,39,45,0,18.85,22.65],[273,600,39,45,0,18.85,22.65],[312,600,39,45,0,18.85,22.65],[351,600,39,45,0,18.85,22.65],[390,600,39,45,0,18.85,22.65],[429,600,39,45,0,18.85,22.65],[468,600,39,45,0,18.85,22.65],[507,600,39,45,0,18.85,22.65],[0,0,44,41,0,23.1,19.2],[44,0,44,41,0,23.1,19.2],[88,0,44,41,0,23.1,19.2],[132,0,44,41,0,23.1,19.2],[176,0,44,41,0,23.1,19.2],[220,0,44,41,0,23.1,19.2],[264,0,44,41,0,23.1,19.2],[308,0,44,41,0,23.1,19.2],[352,0,44,41,0,23.1,19.2],[396,0,44,41,0,23.1,19.2],[440,0,44,41,0,23.1,19.2],[906,600,40,47,0,20.15,27],[946,600,40,47,0,20.15,27],[0,652,40,47,0,20.15,27],[40,652,40,47,0,20.15,27],[80,652,34,45,0,19,22.4],[114,652,34,45,0,19,22.4],[148,652,34,45,0,19,22.4],[182,652,34,45,0,19,22.4],[216,652,41,45,0,22.6,22.8],[257,652,41,45,0,22.6,22.8],[298,652,41,45,0,22.6,22.8],[339,652,37,46,0,18.15,25.65],[376,652,37,46,0,18.15,25.65],[413,652,37,46,0,18.15,25.65],[450,652,37,46,0,18.15,25.65],[487,652,38,46,0,16.75,27.75],[525,652,38,46,0,16.75,27.75],[484,0,63,45,0,20.35,22.55],[547,0,63,45,0,20.35,22.55],[610,0,63,45,0,20.35,22.55],[673,0,63,45,0,20.35,22.55],[736,0,63,45,0,20.35,22.55],[799,0,63,45,0,20.35,22.55],[862,0,63,45,0,20.35,22.55],[925,0,63,45,0,20.35,22.55],[0,45,63,45,0,20.35,22.55],[63,45,63,45,0,20.35,22.55],[546,600,44,38,0,22.05,20.2],[590,600,44,38,0,22.05,20.2],[634,600,47,52,0,25.9,29.15],[681,600,47,52,0,25.9,29.15],[728,600,47,52,0,25.9,29.15],[775,600,47,52,0,25.9,29.15],[822,600,42,38,0,20.75,21.1],[864,600,42,38,0,20.75,21.1]],
         animations: {
             stand: [0, 20, "stand", .3],
             run: [21, 31, "run", .3],
@@ -284,14 +414,20 @@ function loadComplete(evt)
             jump5: [47, 48, "jump5", .3],
             "offGround": [32, 39, "jump2",.3],
             "startFalling": [40,46, "jump4", .3],
-            attack1: [49,58,"stand",.6]
+            attack1: [49,58,"stand",.6],
+            dash1: [59,60,"dash2",.3],
+            dash2: [61,64,"dash2",.3],
+            dash3: [65,66,"stand",.3]
             }     
         });
+    
+    
     
     player = new createjs.Sprite(playerSprites);
     
     testPlatform = new createjs.Bitmap(queue.getResult("platTest"));
     
+    testEnemy = new createjs.Bitmap(queue.getResult("orb"));
     
     //setPlayer();
     
@@ -308,7 +444,9 @@ fileManifest = [
                 {src:"menu.png", id:"menuButton"},
                 {src:"tutorial.png", id:"tutorialButton"},
                 {src:"NewSprites.png", id:"PlayerSprites"},
-                {src:"platformTest.png", id:"platTest"}
+                {src:"platformTest.png", id:"platTest"},
+                {src:"THEORB.png", id: "orb"},
+                
             ];
 			
 //This function loadeds all the files in fileManifest and will rught loadComplete when it is finished. You can also get progress information. There are examples how to do this in preloadJS.
@@ -325,7 +463,9 @@ var attackbox;
 var playerCollidables = [];
 
 var runSpeed = 3;
-var dashSpeed = 6;
+var dashSpeed = 12;
+var dash = false;
+
 
 function setPlayer()
 {
@@ -338,8 +478,14 @@ function setPlayer()
     player.dashSpeed = dashSpeed;
 	player.velX = 0;
 	player.velY = 0;
-	player.jumping = false;
-    player.grounded = true;
+	player.isJumping = false;
+    player.isGrounded = true;
+    player.isDashing = false;
+    player.isStunned = false;
+    player.canBeHurt = true;
+    
+    player.health = MAX_HEALTH;
+    healthHeight = player.health * MAX_HEALTH;
     
     player.snapToPixel = true;
     
@@ -379,6 +525,28 @@ function setPlayer()
     //stage.addChild(attackbox);
     
 	stage.update();
+}
+
+function displayPlayerHealth()
+{
+    healthBar = new createjs.Shape();
+        healthBar.graphics.setStrokeStyle(2,'square','square');
+        healthBar.graphics.beginStroke(('#666'));
+        healthBar.graphics.beginFill("#DDD").drawRect(0,0,25,100);
+        healthBar.graphics.beginFill("#C55").drawRect(0,0,25,healthHeight);
+        healthBar.graphics.endStroke();
+        healthBar.graphics.endFill();
+
+        healthBar.graphics.endStroke();
+        stage.addChild(healthBar);
+        
+}
+
+function updateHealthBar()
+{
+    healthHeight = player.health * MAX_HEALTH;
+    stage.removeChild(healthBar);
+    displayPlayerHealth();
 }
 
 function startScreenLoad()
@@ -465,7 +633,7 @@ function instructScreen()
 
 function gameOverScreen()
 {
-    if(time >= 10 || GAME_STATE=="gameOver")
+    if(GAME_STATE=="gameOver")
     {
         createjs.Ticker.removeAllEventListeners();
         stage.addChild(gameOver);
@@ -480,14 +648,17 @@ function init() {
     stage.removeChild(title);
     unloadStartButtons();
     loadLevel();
+    loadEnemies();
 	setPlayer();
-    
+    displayPlayerHealth();
+    declareCombos();
     startLoop();
 	
 }
 
 //world
 var platforms = [];
+var Enemies = [];
 function loadLevel()
 {
     var changeX = 50;
@@ -496,14 +667,12 @@ function loadLevel()
     testPlatform.x = (CANVAS_WIDTH/3);
     testPlatform.y = (CANVAS_HEIGHT - 50);
     
-    var bounds = testPlatform.getBounds();
-    
     testPlatform.regX = testPlatform.width/2;
     testPlatform.regY = testPlatform.height/2;
     testPlatform.width = testPlatform.getBounds().width;
     testPlatform.height = testPlatform.getBounds().height;
     
-    for(var i = 0; i < 9; i++)
+    for(var i = 0; i < 5; i++)
     {
         platforms[i] = testPlatform.clone();
         platforms[i] = new createjs.Bitmap(queue.getResult("platTest"));
@@ -515,7 +684,7 @@ function loadLevel()
         platforms[i].y = (CANVAS_HEIGHT-25) - (changeY * i);
     }
     
-    for(var j = 0; j < 9; j++)
+    for(var j = 0; j < 5; j++)
     {
         
         stage.addChild(platforms[j]);
@@ -526,6 +695,41 @@ function loadLevel()
     
 }
 
+var enemyBox;
+
+function loadEnemies()
+{
+    testEnemy.x = CANVAS_WIDTH - 200;
+    testEnemy.y = CANVAS_HEIGHT - 30;
+    
+    testEnemy.width = testEnemy.getBounds().width;
+    testEnemy.height = testEnemy.getBounds().height;
+    
+    testEnemy.regX = testEnemy.getBounds().width/2;
+    testEnemy.regY = testEnemy.getBounds().height/2;
+    
+    Enemies.push(testEnemy);
+    
+    for(var i = 0; i < Enemies.length; i++)
+    {
+        stage.addChild(Enemies[i]);
+    }
+    
+    enemyBox = new createjs.Shape();
+    
+    enemyBox.x = testEnemy.x-15;
+    enemyBox.y = testEnemy.y-15;
+    enemyBox.height = testEnemy.height;
+    enemyBox.width = testEnemy.width;
+    
+    enemyBox.graphics.beginFill("#ffCC00");
+    enemyBox.graphics.drawRect(0,0, enemyBox.width, enemyBox.height);
+    
+    enemyBox.alpha = .5;
+    
+    stage.addChild(enemyBox);
+}
+
 //gameplay
 function movePlayer()
 {
@@ -533,8 +737,9 @@ function movePlayer()
     
     checkPlayer();
     playerCollision();
+    enemyCollision();
+    playerDash();
 	moving();
-    
     
 	player.x += player.velX;
 	player.y += player.velY;
@@ -542,12 +747,12 @@ function movePlayer()
     player.velX *= friction;
 	player.velY += gravity;
 		
-    if(player.grounded)
+    if(player.isGrounded)
     {
         player.velY = 0;
     }
     
-    
+    //console.log(player.isStunned + "," + player.canBeHurt);
 	
     hitbox.x = player.x - (player.width/2);
     hitbox.y = player.y - (player.height/2);
@@ -561,23 +766,23 @@ function movePlayer()
 function moving()
 {
 	
-	if(player.velX > -player.runSpeed && moveLeft)
+	if(player.velX > -player.speed && moveLeft)
 	{
 		player.velX--;
         
 	}
-	else if(player.velX < player.runSpeed&& moveRight)
+	else if(player.velX < player.speed&& moveRight)
 	{
 		player.velX++;
 	}
-	if(!player.jumping && moveUp)
+	if(!player.isJumping && moveUp)
 	{
-		player.jumping=true;
-        player.grounded = false;
+		player.isJumping=true;
+        player.isGrounded = false;
         inAir = true;
 		player.velY = -player.runSpeed*2;
 	}
-    else if(!player.grounded && !moveUp)
+    else if(!player.isGrounded && !moveUp)
     {
         player.velY += 0.4;
     }
@@ -599,8 +804,8 @@ function checkPlayer()
 	if(player.y >= CANVAS_HEIGHT-20)
 	{
 		player.y = CANVAS_HEIGHT-20;
-		player.jumping = false;
-        player.grounded = true;
+		player.isJumping = false;
+        player.isGrounded = true;
         inAir = false;
 	}
 	else if(player.y <= 0)
@@ -623,15 +828,15 @@ function playerCollision()
     
     for(var i = 0; i < platforms.length; i++)
     {
-        //console.log(player.grounded);
+        //console.log(player.isGrounded);
         
         var col = collisionIntersect(player, platforms[i], player.velX, player.velY);
         
         if(!col)
         {
-            if(player.grounded && player.y < CANVAS_HEIGHT - player.height)
+            if(player.isGrounded && player.y < CANVAS_HEIGHT - player.height)
             {
-               player.grounded = false;
+               player.isGrounded = false;
             }
         }
         else
@@ -658,9 +863,9 @@ function playerCollision()
                 {
                     //console.log("bottom");
                     
-                    player.y = (platforms[plat.index].y + platforms[plat.index].height) + 5;
+                    player.y = (platforms[plat.index].y + platforms[plat.index].height);
                     player.velY = 0;
-                    player.jumping = true;
+                    player.isJumping = true;
                     
                 }
                 else if(Math.floor((player.y+player.height) - plat.testing.height) <= (platforms[plat.index].y))
@@ -668,14 +873,14 @@ function playerCollision()
                     //console.log("top");
                     
                     player.y = platforms[plat.index].y - player.height+5;
-                    player.grounded = true;
-                    player.jumping = false;
+                    player.isGrounded = true;
+                    player.isJumping = false;
                     player.velY = 0;
                     
                 }
                 else
                 {
-                    //player.grounded = false;
+                    //player.isGrounded = false;
                 }
             }
             else if(Math.floor(player.x + plat.testing.width) >= (platforms[plat.index].x + (platforms[plat.index].width)))
@@ -709,7 +914,7 @@ function checkAnimation()
 {
     flipSprite();
     
-    if(!player.grounded)
+    if(!player.isGrounded)
     {
         if(player.velY < 0)
         {
@@ -760,21 +965,46 @@ function checkAnimation()
     {
         if(!playing)
         {
-            anim = "right";
-            player.gotoAndPlay("run");
-            playing = true;     
-        }
-        else
-        {
-            if(anim == "right")
+            if(player.isDashing)
             {
-                
+                anim = "dash";
+                player.gotoAndPlay("dash1");
+                playing = true; 
             }
             else
             {
-                anim = "right";
+                anim = "left";
                 player.gotoAndPlay("run");
-                playing = true;
+                playing = true; 
+            }
+        }
+        else
+        {
+            if(player.isDashing)
+            {
+                if(anim == "dash")
+                {
+
+                }
+                else
+                {
+                    anim = "dash";
+                    player.gotoAndPlay("dash1");
+                    playing = true;
+                }
+            }
+            else
+            {
+                if(anim == "left")
+                {
+
+                }
+                else
+                {
+                    anim = "left";
+                    player.gotoAndPlay("run");
+                    playing = true;
+                }
             }
         }
     }
@@ -782,21 +1012,46 @@ function checkAnimation()
     {
         if(!playing)
         {
-            anim = "left";
-            player.gotoAndPlay("run");
-            playing = true;  
-        }
-        else
-        {
-            if(anim == "left")
+            if(player.isDashing)
             {
-                
+                anim = "dash";
+                player.gotoAndPlay("dash1");
+                playing = true; 
             }
             else
             {
-                anim = "left";
+                anim = "right";
                 player.gotoAndPlay("run");
-                playing = true;
+                playing = true; 
+            }
+        }
+        else
+        {
+            if(player.isDashing)
+            {
+                if(anim == "dash")
+                {
+
+                }
+                else
+                {
+                    anim = "dash";
+                    player.gotoAndPlay("dash1");
+                    playing = true;
+                }
+            }
+            else
+            {
+                if(anim == "right")
+                {
+
+                }
+                else
+                {
+                    anim = "right";
+                    player.gotoAndPlay("run");
+                    playing = true;
+                }
             }
         }
     }
@@ -927,12 +1182,6 @@ function attackIntersect(rect1, rect2, x,y)
     }
 }
 
-function collides(a, b) {
-  return a.x < b.x + b.width &&
-	a.x + a.width > b.x &&
-	a.y < b.y + b.height &&
-	a.y + a.height > b.y;
-}
 
 var attackWidth = [];
 
@@ -1035,3 +1284,135 @@ function attackCollision()
 
 }
 
+var dashing = false;
+var stopped = false;
+
+function stopDash()
+{
+    if(player.isGrounded)
+    {
+        window.clearTimeout(stopDash);
+        if(moveLeft || moveRight)
+        {
+            player.gotoAndPlay("dash3");
+            anim = "stand";
+        }
+        player.isDashing = false;
+        dashing = false;
+        player.speed = runSpeed;
+        console.log("stop");
+        stopped = false;
+    }
+    else
+    {
+        stopped = false;
+        //console.log("notStop");
+        window.clearTimeout(stopDash);
+        window.setTimeout(stopDash, 100);
+    }
+    
+}
+
+function playerDash()
+{
+    if(dashing)
+    {
+        if(!stopped)
+        {
+            player.isDashing = true;
+            player.speed = dashSpeed;
+            window.clearTimeout(stopDash);
+            window.setTimeout(stopDash, 500);
+            stopped = true;
+        }
+    }
+}
+
+function enemyCollision()
+{
+    var collide = null;
+    var hits = [];
+    
+    for(var i = 0; i < Enemies.length; i++)
+    {
+        var col = collisionIntersect(player, Enemies[i], player.velX, player.velY);
+        
+        if(!col)
+        {
+            
+        }
+        else
+        {
+            var test = {
+                index: i,
+                testing: col
+            };
+            
+            hits.push(test);
+        }
+    }
+    
+    hits.forEach(function(hit){
+        
+        if(hit.testing)
+        {
+            if(!player.isStunned && player.canBeHurt)
+            {
+                playerStun();
+            }
+            else
+            {
+
+            }
+        }
+        
+        
+        //console.log("player lose health");
+        //player.health--;
+        //player.isStunned = true;
+    });
+}
+
+var hitTween;
+
+function playerStun()
+{
+    player.isStunned = true;
+    player.canBeHurt = false;
+    
+    player.health--;
+    
+    updateHealthBar();
+    
+    var moveBack = 0;
+    
+    if(player.velX < 0)
+    {
+        moveBack = 40;
+    }
+    else
+    {
+        moveBack = -40;
+    }
+    
+    //console.log("player hit");
+    player.velY = 0;
+    gravity = 0;
+    moveUp = false;
+    
+    hitTween = createjs.Tween.get(player,{loop:false})
+        .wait(0)
+    .to({x:player.x + moveBack, y: player.y, rotation:0},300,createjs.Ease.circOut)
+    .call(completePlayerStun);
+    
+}
+
+function completePlayerStun()
+{
+    //console.log("tween go");
+    player.isStunned = false;
+    player.canBeHurt = true;
+    player.velY = 0;
+    player.velX = 0;
+    gravity = .2;
+}

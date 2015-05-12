@@ -38,6 +38,10 @@ var mouseEvt = Boolean(false);
 var title, instructionScreen, gameOver;
 var playButton, tutorialButton, menuButton, medium, large; //Menu Buttons
 
+var corrHoriz, corrVert, cornerL, cornerR, cornerDR, cornerDL;
+
+var drawSizeDown, drawSizeUp, loadButton, saveButton, clearButton;
+
 //opens a canvas and tells CreateJS to use it as a Stage. Remember, CreateJS does everything on it's stage similar to the way ActionScript works.
 function openCanvas() {
     
@@ -135,7 +139,7 @@ if( !!(window.addEventListener)) {
     window.attachEvent("onload", main);
 }
 
-
+var drawSize = 3;
 
 
 //Mouse Controls
@@ -146,24 +150,48 @@ function mouseChecking()
 
 	checkMouseColor();
 	
+    try
+    {
 	if(!mouseEvt)
 	{
 		if(corridorHoriz)
 		{
 			squares[changeX][changeY].gotoAndStop(mouseColor);
 			squares[changeX][changeY].code = mouseCode;
-			squares[changeX][changeY-3].gotoAndStop(mouseColor);
-			squares[changeX][changeY-3].code = mouseCode;
+			squares[changeX][changeY-drawSize].gotoAndStop(mouseColor);
+			squares[changeX][changeY-drawSize].code = mouseCode;
 		}
 		else if(corridorVert)
 		{
 			squares[changeX][changeY].gotoAndStop(mouseColor);
 			squares[changeX][changeY].code = mouseCode;
-			squares[changeX-3][changeY].gotoAndStop(mouseColor);
-			squares[changeX-3][changeY].code = mouseCode;
+			squares[changeX-drawSize][changeY].gotoAndStop(mouseColor);
+			squares[changeX-drawSize][changeY].code = mouseCode;
 		}
 		else if(cornerLeft)
 		{
+            
+            //Squares to paint is 2*drawSize + 2
+            //How the fuck do you loop that
+            
+            
+            squares[changeX][changeY].gotoAndStop(mouseColor);
+			squares[changeX][changeY].code = mouseCode;
+            
+            squares[changeX-drawSize][changeY-drawSize].gotoAndStop(mouseColor);
+			squares[changeX-drawSize][changeY-drawSize].code = mouseCode;
+            
+            for(var i = 0; i <= drawSize; i++)
+            {
+                squares[changeX-drawSize][changeY-(drawSize-i)].gotoAndStop(mouseColor);
+                squares[changeX-drawSize][changeY-(drawSize-i)].code = mouseCode;
+                
+                squares[changeX-(drawSize-i)][changeY-drawSize].gotoAndStop(mouseColor);
+                squares[changeX-(drawSize-i)][changeY-drawSize].code = mouseCode;
+            }
+            
+            
+            /*
 			squares[changeX][changeY].gotoAndStop(mouseColor);
 			squares[changeX][changeY].code = mouseCode;
 			
@@ -187,9 +215,27 @@ function mouseChecking()
 			
 			squares[changeX][changeY-3].gotoAndStop(mouseColor);
 			squares[changeX][changeY-3].code = mouseCode;
+            */
 		}
 		else if(cornerRight)
 		{
+            
+            squares[changeX][changeY].gotoAndStop(mouseColor);
+			squares[changeX][changeY].code = mouseCode;
+            
+            squares[changeX+drawSize][changeY-drawSize].gotoAndStop(mouseColor);
+			squares[changeX+drawSize][changeY-drawSize].code = mouseCode;
+            
+            for(var i = 0; i <= drawSize; i++)
+            {
+                squares[changeX+drawSize][changeY-(drawSize-i)].gotoAndStop(mouseColor);
+                squares[changeX+drawSize][changeY-(drawSize-i)].code = mouseCode;
+                
+                squares[changeX+(drawSize-i)][changeY-drawSize].gotoAndStop(mouseColor);
+                squares[changeX+(drawSize-i)][changeY-drawSize].code = mouseCode;
+            }
+            
+            /*
 			squares[changeX][changeY].gotoAndStop(mouseColor);
 			squares[changeX][changeY].code = mouseCode;
 			
@@ -213,9 +259,27 @@ function mouseChecking()
 			
 			squares[changeX][changeY-3].gotoAndStop(mouseColor);
 			squares[changeX][changeY-3].code = mouseCode;
+            */
 		}
 		else if(cornerDownR)
 		{
+            
+            squares[changeX][changeY].gotoAndStop(mouseColor);
+			squares[changeX][changeY].code = mouseCode;
+            
+            squares[changeX-drawSize][changeY+drawSize].gotoAndStop(mouseColor);
+			squares[changeX-drawSize][changeY+drawSize].code = mouseCode;
+            
+            for(var i = 0; i <= drawSize; i++)
+            {
+                squares[changeX-drawSize][changeY+(drawSize-i)].gotoAndStop(mouseColor);
+                squares[changeX-drawSize][changeY+(drawSize-i)].code = mouseCode;
+                
+                squares[changeX-(drawSize-i)][changeY+drawSize].gotoAndStop(mouseColor);
+                squares[changeX-(drawSize-i)][changeY+drawSize].code = mouseCode;
+            }
+            
+            /*
 			squares[changeX][changeY].gotoAndStop(mouseColor);
 			squares[changeX][changeY].code = mouseCode;
 			
@@ -239,9 +303,26 @@ function mouseChecking()
 			
 			squares[changeX][changeY+3].gotoAndStop(mouseColor);
 			squares[changeX][changeY+3].code = mouseCode;
+            */
 		}
 		else if(cornerDownL)
 		{
+            
+            squares[changeX][changeY].gotoAndStop(mouseColor);
+			squares[changeX][changeY].code = mouseCode;
+            
+            squares[changeX+drawSize][changeY+drawSize].gotoAndStop(mouseColor);
+			squares[changeX+drawSize][changeY+drawSize].code = mouseCode;
+            
+            for(var i = 0; i <= drawSize; i++)
+            {
+                squares[changeX+drawSize][changeY+(drawSize-i)].gotoAndStop(mouseColor);
+                squares[changeX+drawSize][changeY+(drawSize-i)].code = mouseCode;
+                
+                squares[changeX+(drawSize-i)][changeY+drawSize].gotoAndStop(mouseColor);
+                squares[changeX+(drawSize-i)][changeY+drawSize].code = mouseCode;
+            }
+            /*
 			squares[changeX][changeY].gotoAndStop(mouseColor);
 			squares[changeX][changeY].code = mouseCode;
 			
@@ -265,6 +346,7 @@ function mouseChecking()
 			
 			squares[changeX][changeY+3].gotoAndStop(mouseColor);
 			squares[changeX][changeY+3].code = mouseCode;
+            */
 		}
 		else
 		{
@@ -280,7 +362,16 @@ function mouseChecking()
 	{	
 		
 	}
+    }
+    catch(err)
+    {
+        //console.log("didnt click grid");
+    }
 }
+
+
+
+var spriteCursor;
 
 function mouseOverStuff()
 {
@@ -289,175 +380,64 @@ function mouseOverStuff()
 	
 	if(museX < gridWidth && museY < gridHeight)
 	{
-		drawCursor.alpha = 1;
-		drawCursor2.alpha = 1;
-		
-		drawCursor.x = Math.floor(trackX*10);
-		drawCursor.y = Math.floor(trackY*10);
-		
+        spriteCursor.alpha = 1;
+        
+        spriteCursor.x = Math.floor(trackX*10)+10;
+		spriteCursor.y = Math.floor(trackY*10)+10;
+        
+        spriteCursor.gotoAndStop("singleCursor");
+        
+        
 		if(corridorHoriz)
 		{
-			
-			drawCursor2.x = Math.floor(trackX*10);
-			drawCursor2.y = Math.floor((trackY-3)*10);
+            spriteCursor.gotoAndStop("horizontal"+drawSize);
 		}
 		else if(corridorVert)
 		{
-			drawCursor2.x = Math.floor((trackX-3)*10);
-			drawCursor2.y = Math.floor(trackY*10);
+            spriteCursor.gotoAndStop("vertical"+drawSize);
 		}
 		else if(cornerLeft)
 		{
-			drawCursor3.alpha = 1;
-			drawCursor4.alpha = 1;
-			drawCursor5.alpha = 1;
-			drawCursor6.alpha = 1;
-			drawCursor7.alpha = 1;
-			drawCursor8.alpha = 1;
-		
-			drawCursor2.x = Math.floor((trackX-3)*10);
-			drawCursor2.y = Math.floor(trackY*10);
-			
-			drawCursor3.x = Math.floor((trackX-3)*10);
-			drawCursor3.y = Math.floor((trackY-1)*10);
-			
-			drawCursor4.x = Math.floor((trackX-3)*10);
-			drawCursor4.y = Math.floor((trackY-2)*10);
-			
-			drawCursor5.x = Math.floor((trackX-3)*10);
-			drawCursor5.y = Math.floor((trackY-3)*10);
-			
-			drawCursor6.x = Math.floor((trackX-2)*10);
-			drawCursor6.y = Math.floor((trackY-3)*10);
-			
-			drawCursor7.x = Math.floor((trackX-1)*10);
-			drawCursor7.y = Math.floor((trackY-3)*10);
-			
-			drawCursor8.x = Math.floor((trackX)*10);
-			drawCursor8.y = Math.floor((trackY-3)*10);
+            spriteCursor.gotoAndStop("downLeft"+drawSize);
 		}
 		else if(cornerRight)
 		{
-			drawCursor3.alpha = 1;
-			drawCursor4.alpha = 1;
-			drawCursor5.alpha = 1;
-			drawCursor6.alpha = 1;
-			drawCursor7.alpha = 1;
-			drawCursor8.alpha = 1;
-		
-			drawCursor2.x = Math.floor((trackX+3)*10);
-			drawCursor2.y = Math.floor((trackY)*10);
-			
-			drawCursor3.x = Math.floor((trackX+3)*10);
-			drawCursor3.y = Math.floor((trackY-1)*10);
-			
-			drawCursor4.x = Math.floor((trackX+3)*10);
-			drawCursor4.y = Math.floor((trackY-2)*10);
-			
-			drawCursor5.x = Math.floor((trackX+3)*10);
-			drawCursor5.y = Math.floor((trackY-3)*10);
-			
-			drawCursor6.x = Math.floor((trackX+2)*10);
-			drawCursor6.y = Math.floor((trackY-3)*10);
-			
-			drawCursor7.x = Math.floor((trackX+1)*10);
-			drawCursor7.y = Math.floor((trackY-3)*10);
-			
-			drawCursor8.x = Math.floor((trackX)*10);
-			drawCursor8.y = Math.floor((trackY-3)*10);
+            spriteCursor.gotoAndStop("downRight"+drawSize);
 		}
 		else if(cornerDownR)
 		{
-			drawCursor3.alpha = 1;
-			drawCursor4.alpha = 1;
-			drawCursor5.alpha = 1;
-			drawCursor6.alpha = 1;
-			drawCursor7.alpha = 1;
-			drawCursor8.alpha = 1;
+            spriteCursor.gotoAndStop("upRight"+drawSize);
 		
-			drawCursor2.x = Math.floor((trackX-3)*10);
-			drawCursor2.y = Math.floor((trackY)*10);
-			
-			drawCursor3.x = Math.floor((trackX-3)*10);
-			drawCursor3.y = Math.floor((trackY+1)*10);
-			
-			drawCursor4.x = Math.floor((trackX-3)*10);
-			drawCursor4.y = Math.floor((trackY+2)*10);
-			
-			drawCursor5.x = Math.floor((trackX-3)*10);
-			drawCursor5.y = Math.floor((trackY+3)*10);
-			
-			drawCursor6.x = Math.floor((trackX-2)*10);
-			drawCursor6.y = Math.floor((trackY+3)*10);
-			
-			drawCursor7.x = Math.floor((trackX-1)*10);
-			drawCursor7.y = Math.floor((trackY+3)*10);
-			
-			drawCursor8.x = Math.floor((trackX)*10);
-			drawCursor8.y = Math.floor((trackY+3)*10);
 		}
 		else if(cornerDownL)
 		{
-			drawCursor3.alpha = 1;
-			drawCursor4.alpha = 1;
-			drawCursor5.alpha = 1;
-			drawCursor6.alpha = 1;
-			drawCursor7.alpha = 1;
-			drawCursor8.alpha = 1;
-		
-			drawCursor2.x = Math.floor((trackX+3)*10);
-			drawCursor2.y = Math.floor((trackY)*10);
-			
-			drawCursor3.x = Math.floor((trackX+3)*10);
-			drawCursor3.y = Math.floor((trackY+1)*10);
-			
-			drawCursor4.x = Math.floor((trackX+3)*10);
-			drawCursor4.y = Math.floor((trackY+2)*10);
-			
-			drawCursor5.x = Math.floor((trackX+3)*10);
-			drawCursor5.y = Math.floor((trackY+3)*10);
-			
-			drawCursor6.x = Math.floor((trackX+2)*10);
-			drawCursor6.y = Math.floor((trackY+3)*10);
-			
-			drawCursor7.x = Math.floor((trackX+1)*10);
-			drawCursor7.y = Math.floor((trackY+3)*10);
-			
-			drawCursor8.x = Math.floor((trackX)*10);
-			drawCursor8.y = Math.floor((trackY+3)*10);
+            spriteCursor.gotoAndStop("upLeft"+drawSize);
+            
 		}
 		else
 		{
-			drawCursor2.x = Math.floor(trackX*10);
-			drawCursor2.y = Math.floor(trackY*10);
+			
 		}
 	}
 	else
 	{
-		drawCursor.alpha = 0;
-		drawCursor2.alpha = 0;
-		drawCursor3.alpha = 0;
-		drawCursor4.alpha = 0;
-		drawCursor5.alpha = 0;
-		drawCursor6.alpha = 0;
-		drawCursor7.alpha = 0;
-		drawCursor8.alpha = 0;
+        spriteCursor.alpha = 0;
 	}
 	
 }
 
 function stageMouseControls(evt)
 {
-	console.log(evt.type);
+	//console.log(evt.type);
 	if(evt.type == "stagemousedown")
 	{
 		mouseEvt = Boolean(false);
-		console.log("go");
+		//console.log("go");
 	}
 	else if(evt.type == "stagemouseup")
 	{
 		mouseEvt = Boolean(true);
-		console.log("stop");
+		//console.log("stop");
 	}
 }
 
@@ -467,6 +447,24 @@ function checkMouseColor()
 	{
 		mouseCode = 1;
 	}
+}
+
+
+
+function drawingSizes(num)
+{
+    if(drawSize > 1 && drawSize < 7)
+    {
+        drawSize += num;
+    }
+    else if(drawSize >= 7)
+    {
+        drawSize = 6;
+    }
+    else if(drawSize <= 1)
+    {
+        drawSize = 2;
+    }
 }
 
 //Keyboard Events
@@ -524,6 +522,66 @@ function loadComplete(evt)
 	
 	mapBlocks = new createjs.Sprite(blocks);
     
+    var cursorSprites = new createjs.SpriteSheet({
+       images: [queue.getResult("cursorFrames")],
+        frames: [[0,0,82,82,0,81.25,81.1],[82,0,82,82,0,81.25,81.1],[164,0,82,82,0,81.25,81.1],[246,0,82,82,0,81.25,81.1],[328,0,82,82,0,81.25,81.1],[410,0,82,82,0,81.25,81.1],[0,82,83,82,0,11.3,81.1],[83,82,83,82,0,11.3,81.1],[166,82,83,82,0,11.3,81.1],[249,82,83,82,0,11.3,81.1],[332,82,83,82,0,11.3,81.1],[415,82,83,82,0,11.3,81.1],[72,164,82,82,0,11.4,11.35],[154,164,82,82,0,11.4,11.35],[236,164,82,82,0,11.4,11.35],[318,164,82,82,0,11.4,11.35],[400,164,82,82,0,11.4,11.35],[0,246,82,82,0,11.4,11.35],[82,246,83,82,0,81.15,11],[165,246,83,82,0,81.15,11],[248,246,83,82,0,81.15,11],[331,246,83,82,0,81.15,11],[414,246,83,82,0,81.15,11],[0,328,83,82,0,81.15,11],[83,328,82,12,0,81.05,11.1],[165,328,82,12,0,81.05,11.1],[247,328,82,12,0,81.05,11.1],[329,328,82,12,0,81.05,11.1],[411,328,82,12,0,81.05,11.1],[0,410,82,12,0,81.05,11.1],[498,82,12,82,0,11.1,81.05],[0,164,12,82,0,11.1,81.05],[12,164,12,82,0,11.1,81.05],[24,164,12,82,0,11.1,81.05],[36,164,12,82,0,11.1,81.05],[48,164,12,82,0,11.1,81.05],[60,164,12,12,0,11.1,11.1]],
+        animations: {
+            downLeft2:[0,0],
+            downLeft3:[1,1],
+            downLeft4:[2,2],
+            downLeft5:[3,3],
+            downLeft6:[4,4],
+            downLeft7:[5,5],
+            downRight2:[6,6],
+            downRight3:[7,7],
+            downRight4:[8,8],
+            downRight5:[9,9],
+            downRight6:[10,10],
+            downRight7:[11,11],
+            upLeft2:[12,12],
+            upLeft3:[13,13],
+            upLeft4:[14,14],
+            upLeft5:[15,15],
+            upLeft6:[16,16],
+            upLeft7:[17,17],
+            upRight2:[18,18],
+            upRight3:[19,19],
+            upRight4:[20,20],
+            upRight5:[21,21],
+            upRight6:[22,22],
+            upRight7:[23,23],
+            vertical2:[24,24],
+            vertical3:[25,25],
+            vertical4:[26,26],
+            vertical5:[27,27],
+            vertical6:[28,28],
+            vertical7:[29,29],
+            horizontal2:[30,30],
+            horizontal3:[31,31],
+            horizontal4:[32,32],
+            horizontal5:[33,33],
+            horizontal6:[34,34],
+            horizontal7:[35,35],
+            singleCursor:[36,36]
+        }
+    });
+    
+    corrHoriz = new createjs.Bitmap(queue.getResult("horizIcon"));
+    corrVert = new createjs.Bitmap(queue.getResult("vertIcon"));
+    cornerL = new createjs.Bitmap(queue.getResult("cornerDRIcon"));
+    cornerDL = new createjs.Bitmap(queue.getResult("cornerLUIcon"));
+    cornerR = new createjs.Bitmap(queue.getResult("cornerDLIcon"));
+    cornerDR = new createjs.Bitmap(queue.getResult("cornerRUIcon"));
+    
+    drawSizeUp = new createjs.Bitmap(queue.getResult("plus"));
+    drawSizeDown = new createjs.Bitmap(queue.getResult("minus"));
+    
+    saveButton = new createjs.Bitmap(queue.getResult("saveButton"));
+    loadButton = new createjs.Bitmap(queue.getResult("loadButton"));
+    clearButton = new createjs.Bitmap(queue.getResult("clearButton"));
+    
+    spriteCursor = new createjs.Sprite(cursorSprites);
+    
 //	displaySprites();
 //	startLoop();
 }
@@ -536,7 +594,19 @@ fileManifest = [
                 {src:"play.png", id:"playButton"},
                 {src:"menu.png", id:"menuButton"},
                 {src:"tutorial.png", id:"tutorialButton"},
-				{src:"MapSprites.png", id:"mapSprites"}
+				{src:"MapSprites.png", id:"mapSprites"},
+                {src:"HorizCorridor.png", id:"horizIcon"},
+                {src:"VertCorridor.png", id:"vertIcon"},
+                {src:"CornerDownRight.png", id:"cornerDRIcon"},
+                {src:"CornerLeftDown.png", id:"cornerDLIcon"},
+                {src:"CornerLeftUp.png", id:"cornerLUIcon"},
+                {src:"CornerRightUp.png", id:"cornerRUIcon"},
+                {src:"plus.png", id:"plus"},
+                {src:"minus.png", id:"minus"},
+                {src:"Save.png", id:"saveButton"},
+                {src:"Load.png", id:"loadButton"},
+                {src:"Clear.png", id:"clearButton"},
+                {src:"CursorSizes.png", id:"cursorFrames"}
             ];
 			
 //This function loadeds all the files in fileManifest and will rught loadComplete when it is finished. You can also get progress information. There are examples how to do this in preloadJS.
@@ -595,35 +665,11 @@ function startScreenLoad()
 
 function startMouseCursor()
 {
-	drawCursor = new createjs.Shape();
-	drawCursor.x = 0;
-	drawCursor.y = 0;
-	drawCursor.graphics.beginFill("#ff00ff");
-	drawCursor.graphics.drawRect(0, 0, 10, 10).beginStroke("#000000");
-	
-	drawCursor2 = drawCursor.clone();
-	drawCursor3 = drawCursor.clone();
-	drawCursor4 = drawCursor.clone();
-	drawCursor5 = drawCursor.clone();
-	drawCursor6 = drawCursor.clone();
-	drawCursor7 = drawCursor.clone();
-	drawCursor8 = drawCursor.clone();
-	
-	drawCursor3.alpha = 0;
-	drawCursor4.alpha = 0;
-	drawCursor5.alpha = 0;
-	drawCursor6.alpha = 0;
-	drawCursor7.alpha = 0;
-	drawCursor8.alpha = 0;
-	
-	stage.addChild(drawCursor);
-	stage.addChild(drawCursor2);
-	stage.addChild(drawCursor3);
-	stage.addChild(drawCursor4);
-	stage.addChild(drawCursor5);
-	stage.addChild(drawCursor6);
-	stage.addChild(drawCursor7);
-	stage.addChild(drawCursor8);
+    
+    spriteCursor.x = spriteCursor.x-50;
+    spriteCursor.y = spriteCursor.y-50;
+    
+    stage.addChild(spriteCursor);
 }
 
 //Unloading
@@ -724,19 +770,19 @@ function createGridSmall()
 	gridHeight = 350;
 	gridWidth = 350;
 	
-	console.log(squares.length);
+	//console.log(squares.length);
 	
 	stage.update();
 	
 }
 
+
+
 function changeStageDraw()
 {
-	var corrHoriz = new createjs.Shape();
+	
 	corrHoriz.x = 350;
 	corrHoriz.y = 0;
-	corrHoriz.graphics.beginFill("#FF0000").beginStroke("#000000");
-    corrHoriz.graphics.drawRect(0, 0, 50, 50);
 	corrHoriz.on("click", function(evt){
 		corridorHoriz = Boolean(!corridorHoriz);
 		corridorVert = Boolean(false);
@@ -747,11 +793,9 @@ function changeStageDraw()
 	});
 	
 	
-	var corrVert = new createjs.Shape();
+	
 	corrVert.x = 350;
-	corrVert.y = 50;
-	corrVert.graphics.beginFill("#FFFF00").beginStroke("#000000");
-    corrVert.graphics.drawRect(0, 0, 50, 50);
+	corrVert.y = 60;
 	corrVert.on("click", function(evt){
 		corridorVert = Boolean(!corridorVert);
 		corridorHoriz = Boolean(false);
@@ -761,11 +805,9 @@ function changeStageDraw()
 		cornerDownR	= Boolean(false);
 	});
 	
-	var cornerL = new createjs.Shape();
-	cornerL.x = 400;
+	
+	cornerL.x = 410;
 	cornerL.y = 0;
-	cornerL.graphics.beginFill("#0066FF").beginStroke("#000000");
-    cornerL.graphics.drawRect(0, 0, 50, 50);
 	cornerL.on("click", function(evt){
 		cornerLeft = Boolean(!cornerLeft);
 		cornerRight = Boolean(false);
@@ -775,11 +817,9 @@ function changeStageDraw()
 		corridorVert = Boolean(false);
 	});
 	
-	var cornerR = new createjs.Shape();
-	cornerR.x = 400;
-	cornerR.y = 50;
-	cornerR.graphics.beginFill("#FF6699").beginStroke("#000000");
-    cornerR.graphics.drawRect(0, 0, 50, 50);
+	
+	cornerR.x = 410;
+	cornerR.y = 60;
 	cornerR.on("click", function(evt){
 		cornerRight = Boolean(!cornerRight);
 		cornerLeft = Boolean(false);
@@ -789,11 +829,9 @@ function changeStageDraw()
 		corridorVert = Boolean(false);
 	});
 	
-	var cornerDR = new createjs.Shape();
-	cornerDR.x = 450;
+	
+	cornerDR.x = 470;
 	cornerDR.y = 0;
-	cornerDR.graphics.beginFill("#006699").beginStroke("#000000");
-    cornerDR.graphics.drawRect(0, 0, 50, 50);
 	cornerDR.on("click", function(evt){
 		cornerDownR = Boolean(!cornerDownR);
 		cornerLeft = Boolean(false);
@@ -803,11 +841,9 @@ function changeStageDraw()
 		corridorVert = Boolean(false);
 	});
 	
-	var cornerDL = new createjs.Shape();
-	cornerDL.x = 450;
-	cornerDL.y = 50;
-	cornerDL.graphics.beginFill("#00CC66").beginStroke("#000000");
-    cornerDL.graphics.drawRect(0, 0, 50, 50);
+	
+	cornerDL.x = 470;
+	cornerDL.y = 60;
 	cornerDL.on("click", function(evt){
 		cornerDownL = Boolean(!cornerDownL);
 		cornerLeft = Boolean(false);
@@ -831,7 +867,7 @@ function changeStageDraw()
 	});
 	
 	var red = new createjs.Shape();
-	red.x = 380;
+	red.x = 390;
 	red.y = 150;
 	red.graphics.beginFill("#FF0000").beginStroke("#000000");
     red.graphics.drawRect(0, 0, 30, 30);
@@ -841,7 +877,7 @@ function changeStageDraw()
 	});
 	
 	var purple = new createjs.Shape();
-	purple.x = 410;
+	purple.x = 430;
 	purple.y = 150;
 	purple.graphics.beginFill("#3333FF").beginStroke("#000000");
     purple.graphics.drawRect(0, 0, 30, 30);
@@ -852,7 +888,7 @@ function changeStageDraw()
 	
 	var white = new createjs.Shape();
 	white.x = 350;
-	white.y = 180;
+	white.y = 190;
 	white.graphics.beginFill("#FFFFFF").beginStroke("#000000");
     white.graphics.drawRect(0, 0, 30, 30);
 	white.on("click", function(evt){
@@ -861,8 +897,8 @@ function changeStageDraw()
 	});
 	
 	var eraser = new createjs.Shape();
-	eraser.x = 380;
-	eraser.y = 180;
+	eraser.x = 390;
+	eraser.y = 190;
 	eraser.graphics.beginFill("#0000FF").beginStroke("#000000");
     eraser.graphics.drawRect(0, 0, 30, 30);
 	eraser.on("click", function(evt){
@@ -871,36 +907,41 @@ function changeStageDraw()
 	});
 	
 	
-	var saveButton= new createjs.Shape();
 	saveButton.x = 350;
 	saveButton.y = 250;
-	saveButton.graphics.beginFill("#FF9900").beginStroke("#000000");
-    saveButton.graphics.drawRect(0, 0, 70, 30);
 	saveButton.on("click", function(evt){
 		console.log("save");
 		saveLevel();
 	});
 	
-	var loadButton = new createjs.Shape();
+    
 	loadButton.x = 350;
 	loadButton.y = 280;
-	loadButton.graphics.beginFill("#CC9900").beginStroke("#000000");
-    loadButton.graphics.drawRect(0, 0, 70, 30);
 	loadButton.on("click", function(evt){
 		loadLevel();
 	});
 	
-	var clearButton = new createjs.Shape();
+    
 	clearButton.x = 350;
 	clearButton.y = 310;
-	clearButton.graphics.beginFill("#CC9900").beginStroke("#000000");
-    clearButton.graphics.drawRect(0, 0, 70, 30);
 	clearButton.on("click", function(evt){
 		console.log("clear");
 	});
 	
 	
-	
+	drawSizeUp.x = 470;
+	drawSizeUp.y = 150;
+	drawSizeUp.on("click", function(evt){
+		drawingSizes(+1);
+	});
+    
+    
+	drawSizeDown.x = 470;
+	drawSizeDown.y = 190;
+	drawSizeDown.on("click", function(evt){
+		drawingSizes(-1);
+	});
+    
 	
 	stage.addChild(corrHoriz);
 	stage.addChild(corrVert);
@@ -915,6 +956,9 @@ function changeStageDraw()
 	stage.addChild(purple);
 	stage.addChild(white);
 	stage.addChild(eraser);
+    
+    stage.addChild(drawSizeUp);
+    stage.addChild(drawSizeDown);
 	
 	stage.addChild(saveButton);
 	stage.addChild(loadButton);
