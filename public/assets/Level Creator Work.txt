@@ -1,0 +1,31 @@
+Corridor Horizontal: 50x50
+Corridor Vertical: 50x50
+Corner Down to Right: 50x50
+Corner Down to Left: 50x50
+Corner Right to Down: 50x50
+Corner Left to Down: 50x50
+Green: 30x30
+Red: 30x30
+Purple: 30x30
+White: 30x30
+Eraser: 30x30
+Save: 70x30
+Load: 70x30
+Clear: 70x30
+Increase Size: 30x30
+Decrease Size: 30x30
+
+
+
+Colors:
+White: Walls/Floors 1
+Red: Enemies/Enemy Paths 3
+Blue: Eraser 0 
+Purple: Hazard Zones 4
+Green: Helpful items 2
+Yellow: Safe Zone, Door 5
+Orange: Boss room 6
+Grey: Transparent Platform 7
+Black: Fake Platform/Visual 8
+Pink: Fake Boss 9
+Brown: 
