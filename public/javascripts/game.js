@@ -88,6 +88,9 @@ function loop() {
     checkFPS();
     playerCamera();
     enemyDeath();
+    bulletChecking();
+    moveEnemy();
+    endTheLevel();
 	stage.update();
     
     if(player.health <= 0)
@@ -671,11 +674,14 @@ function init() {
     stage.removeChild(title);
     world.x = world.y = 0;
     unloadStartButtons();
+    levelEnd();
     loadLevel();
     loadEnemies();
 	setPlayer();
     displayPlayerHealth();
     declareCombos();
+    declareProjectile();
+    
     startLoop();
 	
 }
@@ -735,8 +741,8 @@ var enemyBox;
 
 function loadEnemies()
 {
-    testEnemy.x = CANVAS_WIDTH - 200;
-    testEnemy.y = CANVAS_HEIGHT - 30;
+    testEnemy.x = 1600;
+    testEnemy.y = 1650;
     
     testEnemy.health = 10;
     
@@ -746,6 +752,12 @@ function loadEnemies()
     testEnemy.regX = testEnemy.getBounds().width/2;
     testEnemy.regY = testEnemy.getBounds().height/2;
     
+    testEnemy.velX = 0;
+    testEnemy.velY = 0;
+    
+    testEnemy.topY = 0;
+    testEnemy.bottomY = 0;
+    
     Enemies.push(testEnemy);
     
     for(var i = 0; i < Enemies.length; i++)
@@ -753,7 +765,7 @@ function loadEnemies()
         world.addChild(Enemies[i]);
     }
     
-    
+    setEnemyPath();
     //console.log(Enemies);
     
 }
@@ -772,22 +784,187 @@ function enemyDeath()
     }
 }
 
+function setEnemyPath()
+{
+    var startY = Enemies[0].y;
+    var startX = Enemies[0].x;
+
+    Enemies[0].topY = startY - Enemies[0].height * 3.5;
+    Enemies[0].bottomY = startY + Enemies[0].height * 2;
+    
+    console.log(startY + "," +Enemies[0].bottomY + "," +  Enemies[0].topY);
+    
+    Enemies[0].velY = 2;
+}
+
+function moveEnemy()
+{
+    if(Enemies[0].y < Enemies[0].topY)
+    {
+        Enemies[0].velY = 2;
+    }
+    
+    if(Enemies[0].y > Enemies[0].bottomY)
+    {
+        Enemies[0].velY = -2;
+    }
+    
+    Enemies[0].y += Enemies[0].velY;
+    console.log(Enemies[0].y + "," +Enemies[0].bottomY + "," +  Enemies[0].topY);
+    
+}
+
 var bullets = [];
 var Bullet;
+
+var shotTimer = 180;
 
 function declareProjectile()
 {
     Bullet = new createjs.Shape();
+    Bullet.x = 0;
+    Bullet.y = 0;
+    Bullet.width = 8;
+    Bullet.height = 8;
+    Bullet.regX = 4;
+    Bullet.regY = 4;
+    Bullet.graphics.beginFill("#000000");
+    Bullet.graphics.drawRect(0,0, Bullet.width, Bullet.height); 
+    Bullet.active = true;
+    Bullet.velX = 0;
+    Bullet.velY = 0;
+    bulletSpeed = 3;
+}
+
+function bulletChecking()
+{
+    enemyShot();
+    
+    moveBullet();
+    
+    for(var i = 0; i < bullets.length; i++)
+    {
+        if(!bullets[i].active)
+        {
+            world.removeChild(bullets[i]);
+        }
+
+        if(bullets[i].x < (-world.x))
+        {
+            bullets[i].active = false;
+            world.removeChild(bullets[i]);
+        }
+    }
+    
+    shotTimer--;
+    
+    bullets = bullets.filter(function(bullet) {
+	return bullet.active;
+  });
 }
 
 function enemyShot()
 {
+    for(var i = 0; i < Enemies.length; i++)
+    {
+        
+        if((Enemies[i].x < (-world.x+CANVAS_WIDTH)) && Enemies[i].y < (-world.y+CANVAS_HEIGHT))
+        {
+            //console.log("fire");
+            if(bullets.length < 1 && shotTimer <= 0)
+            {
+                shootBullet(Enemies[i].x, Enemies[i].y);
+                shotTimer = 180;
+            }
+        }
+    }
+}
+
+function shootBullet(startX, startY)
+{
+    var newBullet = Bullet.clone(true);
+    newBullet = new createjs.Shape();
+    newBullet.graphics.beginFill("#000000");
+    newBullet.graphics.drawRect(0,0, Bullet.width, Bullet.height);
+    newBullet.x = startX;
+    newBullet.y = startY;
+    newBullet.width = 8;
+    newBullet.height = 8;
+    newBullet.regX = 4;
+    newBullet.regY = 4;
+    newBullet.active = true;
     
+    //console.log(newBullet.x + "," + newBullet.y);
+    
+    //newBullet.velX = 0;
+    
+    if(player.x > newBullet.x)
+    {
+        //console.log("fireLeft");
+        newBullet.velX = 5;
+    }
+    else
+    {
+        //console.log("fireRight");
+        newBullet.velX = -5;
+    }
+    
+    //console.log(newBullet.velX);
+    
+    bullets.push(newBullet);
+    
+    world.addChild(newBullet);
 }
 
 function moveBullet()
 {
+    for(var i = 0; i < bullets.length; i++)
+    {
+        //console.log(bullets[i].x);
+        bullets[i].x += bullets[i].velX;
+        bulletCollision();
+    }
+}
+
+function bulletCollision()
+{
+    var collide = null;
+    var hits = [];
     
+    for(var i = 0; i < bullets.length; i++)
+    {   
+        var col = bothMoving(player, bullets[i], player.velX, player.velY);
+        
+        if(!col)
+        {
+            //console.log("nope");
+        }
+        else
+        {
+            //collide = col;
+            var test = {
+                index:i,
+                testing: col
+            };
+            
+            hits.push(test);
+        }
+    }
+    
+    hits.forEach(function(hit) {
+        if(hit.testing)
+        {
+            if(!player.isStunned && player.canBeHurt)
+            {
+                playerStun();
+                bullets[hit.index].active = false;
+            }
+            else
+            {
+
+            }
+        }
+    });
 }
 
 //gameplay
@@ -825,8 +1002,6 @@ function movePlayer()
     //attackbox.y = player.y - (player.height/2);
 }
 
-
-
 function moving()
 {
 	
@@ -841,17 +1016,33 @@ function moving()
 	}
 	if(!player.isJumping && moveUp)
 	{
-		player.isJumping=true;
+		player.isJumping = true;
         player.isGrounded = false;
         inAir = true;
 		player.velY = -player.runSpeed*2;
 	}
+    else if(player.isJumping && player.isTouchingWall && moveUp)
+    {
+        player.isJumping = false;
+        if(flipped)
+        {
+            console.log("go1");
+            player.isJumping = true;
+            player.velX = 10;
+            player.velY = -player.runSpeed*2;
+        }
+        else
+        {
+            console.log("go2");
+            player.isJumping = true;
+            player.velX = -10;
+            player.velY = -player.runSpeed*2;
+        }
+    }
     else if(!player.isGrounded && !moveUp)
     {
         player.velY += 0.4;
     }
-    
-   
 }
 
 function checkPlayer()
@@ -883,8 +1074,6 @@ function playerCollision()
     var collide = null;
     var plats = [];
     collisions = [];
-    
-    console.log(player.velY);
     
     for(var i = 0; i < platforms.length; i++)
     {
@@ -1165,6 +1354,31 @@ function collisionIntersect(rect1, rect2, x,y)
     }
 }
 
+function bothMoving(rect1, rect2, x,y)
+{
+    x = x || 0;
+    y = y || 0;
+    
+    var dx, dy, r1={},r2={};
+    r1.cx = rect1.x+x+(r1.hw = (rect1.width/2));
+    r1.cy = rect1.y+y+(r1.hh = (rect1.height/2));
+    r2.cx = rect2.x+x+(r2.hw = (rect2.width/2));
+    r2.cy = rect2.y+y+(r2.hh = (rect2.height/2));
+    
+    dx = Math.abs(r1.cx - r2.cx) - (r1.hw + r2.hw);
+    dy = Math.abs(r1.cy - r2.cy) - (r1.hh + r2.hh);
+    
+    
+    if(dx < 0 && dy < 0)
+    {
+        return {width:-dx,height:-dy};
+    }
+    else
+    {
+        return null;
+    }
+}
+
 var collisions = [];
 
 function FUCKIT(shapeA, shapeB)
@@ -1242,7 +1456,7 @@ function shouldPlayerFall()
             {
                 //console.log("go");
                 wallJump = true;
-                player.isJumping = false;
+                //player.isJumping = false;
             }
         }
         
@@ -1381,14 +1595,8 @@ function attackCollision()
     var collide = null;
     var hits = [];
     
-    
-    
     for(var i = 0; i < Enemies.length; i++)
     {   
-        
-        //console.log((attackbox.x + attackbox.width) + "," + (platforms[0].x - (platforms[0].width/2)));
-        
-        
         var col = attackIntersect(attackbox, Enemies[i], player.velX, player.velY);
         
         //console.log("frame");
@@ -1425,9 +1633,6 @@ function attackCollision()
             Enemies.splice(hit.index,1);
         }
     });
-    
-    //stage.removeChild(attackbox);
-
 }
 
 var dashing = false;
@@ -1563,13 +1768,6 @@ function completePlayerStun()
     gravity = .2;
 }
 
-function playerWallJump()
-{
-    //gravity = 0.05;
-    //jumping = false;
-    //
-}
-
 
 function playerCamera()
 {
@@ -1594,7 +1792,7 @@ var ultAttack;
 
 function playerUltimateAttack()
 {
-    player.canBeHurt = false;
+    /*player.canBeHurt = false;
     
     ultAttack = createjs.Tween.get(player,{loop:false})
         .wait(0)
@@ -1603,7 +1801,7 @@ function playerUltimateAttack()
     .to({x:Enemies[0].x - Enemies[0].width-5, y: player.y, rotation: 0},createjs.Ease.circOut)
     .wait(500)
     .to({x:Enemies[0].x + Enemies[0].width + player.width, y: player.y - 75, rotation:0},300,createjs.Ease.circOut)
-    .call(ultEnd);
+    .call(ultEnd);*/
     
     //player.canBeHurt = true;
 }
@@ -1614,9 +1812,45 @@ function ultEnd()
     player.canBeHurt = true;
 }
 
+var levelEnder;
+
+function levelEnd()
+{
+    levelEnder = new createjs.Shape();
+    levelEnder.x = 0;
+    levelEnder.y = 0;
+    levelEnder.width = 10;
+    levelEnder.height = 10;
+    levelEnder.regX = 5;
+    levelEnder.regY = 5;
+    
+    
+    levelEnder.graphics.beginFill("#ff0000");
+    levelEnder.graphics.drawRect(0,0, levelEnder.width, levelEnder.height);
+    
+    world.addChild(levelEnder);
+}
+
+function endTheLevel()
+{
+    var collide = null;
+    var hits = [];
+    
+    var col = collisionIntersect(player, levelEnder, player.velX, player.velY);
+        
+        if(!col)
+        {
+            
+        }
+        else
+        {
+            GAME_STATE = "gameOver";
+        }
+}
+
 var fullLeverArray = [];
 
-var firstLevel = [35,35,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,4,4,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,4,4,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,4,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,0,0,1,0,0,0,0,0,1,0,0,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1]
+var firstLevel = [35,35,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,4,4,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,4,4,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,4,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,0,0,8,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,0,0,1,0,0,0,0,0,1,0,0,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1]
 
 function drawFullLevel()
 {
@@ -1659,7 +1893,10 @@ function drawFullLevel()
                 case 5: break; //door
                 case 6: break; //boss
                 case 7: break; //passPlat
-                case 8: break; //fakePlat
+                case 8: 
+                    levelEnder.x = placeX;
+                    levelEnder.y = placeY;
+                    break; //fakePlat
                 //case 9: break; //playerSpawn   
             }
 

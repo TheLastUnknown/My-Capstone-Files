@@ -4,25 +4,23 @@ var LevelTimes = require("./levelTimes.js");
 
 var User = new mongoose.Schema({
     username: String,
-    password: String,
-    levelTimes: [LevelTimes],
-    createdLevels: [CreatedLevel]
+    password: String
 });
 
 
 //ADDING
 //Get model
-var loggedUser = mongoose.model('User',User);
+//var loggedUser = mongoose.model('User',User);
 //Create new User
-var newUser = new loggedUser();
+//var newUser = new loggedUser();
 //Create new LevelTime
-newUser.levelTimes.push({});
+//newUser.levelTimes.push({});
 //Create new CreatedLevel
-newUser.createdLevels.push({})
+//newUser.createdLevels.push({})
 
-newUser.save(function(err){
+/*newUser.save(function(err){
     if(!err) console.log('Success!');
-});
+});*/
 
 
 

@@ -1,0 +1,13 @@
+<h1>
+    This is a partial View
+</h1>
+
+<ul>
+<% 
+    //console.log(users.length);
+    for(var i = 0; i < users.length; i++)
+    {%>
+    <li><%= users[i].username;%></li>
+    <%}
+%>
+</ul>

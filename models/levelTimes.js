@@ -5,5 +5,8 @@ var LevelTimes = new mongoose.Schema({
     levelTime: {
         minutes: Number,
         seconds: Number
-    }
+    },
+    username: String
 });
+
+module.exports = mongoose.model('LevelTimes', LevelTimes);
