@@ -2,7 +2,7 @@
 
 var CANVAS_WIDTH = 900;
 var CANVAS_HEIGHT = 900;
-var FPS = 30;
+var FPS = 15;
 var GAME_STATE = 'start';
 var time=0;
 var score = 0;
@@ -509,13 +509,19 @@ function loadComplete(evt)
 	var blocks = new createjs.SpriteSheet(
 		{
 		images: [queue.getResult("mapSprites")], 
-		frames: [[0,0,10,10,0,0,0],[10,0,10,10,0,0,0],[20,0,10,10,0,0,0],[30,0,10,10,0,0,0],[40,0,10,10,0,0,0]],
+		frames: [[0,0,10,10,0,0,0],[10,0,10,10,0,0,0],[20,0,10,10,0,0,0],[30,0,10,10,0,0,0],[40,0,10,10,0,0,0],[50,0,10,10,0,0,0],[60,0,10,10,0,0,0],[70,0,10,10,0,0,0],[80,0,10,10,0,0,0],[90,0,10,10,0,0,0],[100,0,10,10,0,0,0]],
 		animations:{
 			0: [0, 0, "0", 1],
             1: [1, 1, "1", 1],
-            2: [2, 2, "2",1],
-			3: [3, 3, "3",1],
-			4: [4, 4, "4",1]
+            2: [2, 2, "2", 1],
+			3: [3, 3, "3", 1],
+			4: [4, 4, "4", 1],
+            5: [5, 5, "5", 1],
+            6: [6, 6, "6", 1],
+            7: [7, 7, "7", 1],
+            8: [8, 8, "8", 1],
+            9: [9, 9, "9", 1],
+            10: [10, 10, "10", 1]
 		}
 		
 		});
@@ -581,6 +587,8 @@ function loadComplete(evt)
     clearButton = new createjs.Bitmap(queue.getResult("clearButton"));
     
     spriteCursor = new createjs.Sprite(cursorSprites);
+    
+    console.log(loggedUser);
     
 //	displaySprites();
 //	startLoop();
@@ -670,6 +678,18 @@ function startMouseCursor()
     spriteCursor.y = spriteCursor.y-50;
     
     stage.addChild(spriteCursor);
+}
+
+function clearGrid()
+{
+    for(var i = 0; i < squares.length; i++)
+    {
+        for(var j = 0; j < squares.length; j++)
+        {
+            squares[i][j].code = 0;
+            squares[i][j].gotoAndStop(0);
+        }
+    }
 }
 
 //Unloading
@@ -776,8 +796,6 @@ function createGridSmall()
 	
 }
 
-
-
 function changeStageDraw()
 {
 	
@@ -867,7 +885,7 @@ function changeStageDraw()
 	});
 	
 	var red = new createjs.Shape();
-	red.x = 390;
+	red.x = 385;
 	red.y = 150;
 	red.graphics.beginFill("#FF0000").beginStroke("#000000");
     red.graphics.drawRect(0, 0, 30, 30);
@@ -877,9 +895,9 @@ function changeStageDraw()
 	});
 	
 	var purple = new createjs.Shape();
-	purple.x = 430;
+	purple.x = 420;
 	purple.y = 150;
-	purple.graphics.beginFill("#3333FF").beginStroke("#000000");
+	purple.graphics.beginFill("#6600FF").beginStroke("#000000");
     purple.graphics.drawRect(0, 0, 30, 30);
 	purple.on("click", function(evt){
 		mouseColor = 4;
@@ -887,8 +905,8 @@ function changeStageDraw()
 	});
 	
 	var white = new createjs.Shape();
-	white.x = 350;
-	white.y = 190;
+	white.x = 455;
+	white.y = 150;
 	white.graphics.beginFill("#FFFFFF").beginStroke("#000000");
     white.graphics.drawRect(0, 0, 30, 30);
 	white.on("click", function(evt){
@@ -897,8 +915,8 @@ function changeStageDraw()
 	});
 	
 	var eraser = new createjs.Shape();
-	eraser.x = 390;
-	eraser.y = 190;
+	eraser.x = 350;
+	eraser.y = 185;
 	eraser.graphics.beginFill("#0000FF").beginStroke("#000000");
     eraser.graphics.drawRect(0, 0, 30, 30);
 	eraser.on("click", function(evt){
@@ -906,9 +924,59 @@ function changeStageDraw()
 		mouseCode = 0;
 	});
 	
+    var orange = new createjs.Shape();
+	orange.x = 385;
+	orange.y = 185;
+	orange.graphics.beginFill("#FF9933").beginStroke("#000000");
+    orange.graphics.drawRect(0, 0, 30, 30);
+	orange.on("click", function(evt){
+		mouseColor = 5;
+		mouseCode = 5;
+	});
+    
+    var grey = new createjs.Shape();
+	grey.x = 420;
+	grey.y = 185;
+	grey.graphics.beginFill("#999999").beginStroke("#000000");
+    grey.graphics.drawRect(0, 0, 30, 30);
+	grey.on("click", function(evt){
+		mouseColor = 6;
+		mouseCode = 6;
+	});
+    
+    var yellow = new createjs.Shape();
+	yellow.x = 455;
+	yellow.y = 185;
+	yellow.graphics.beginFill("#FFFF00").beginStroke("#000000");
+    yellow.graphics.drawRect(0, 0, 30, 30);
+	yellow.on("click", function(evt){
+		mouseColor = 7;
+		mouseCode = 7;
+	});
+    
+    var pink = new createjs.Shape();
+	pink.x = 350;
+	pink.y = 220;
+	pink.graphics.beginFill("#FF33CC").beginStroke("#000000");
+    pink.graphics.drawRect(0, 0, 30, 30);
+	pink.on("click", function(evt){
+		mouseColor = 8;
+		mouseCode = 8;
+	});
+    
+    var black = new createjs.Shape();
+	black.x = 385;
+	black.y = 220;
+	black.graphics.beginFill("#393939").beginStroke("#000000");
+    black.graphics.drawRect(0, 0, 30, 30);
+	black.on("click", function(evt){
+		mouseColor = 9;
+		mouseCode = 9;
+	});
+    
 	
 	saveButton.x = 350;
-	saveButton.y = 250;
+	saveButton.y = 260;
 	saveButton.on("click", function(evt){
 		console.log("save");
 		saveLevel();
@@ -916,27 +984,27 @@ function changeStageDraw()
 	
     
 	loadButton.x = 350;
-	loadButton.y = 280;
+	loadButton.y = 290;
 	loadButton.on("click", function(evt){
 		loadLevel();
 	});
 	
     
 	clearButton.x = 350;
-	clearButton.y = 310;
+	clearButton.y = 320;
 	clearButton.on("click", function(evt){
-		console.log("clear");
+		clearGrid();
 	});
 	
 	
-	drawSizeUp.x = 470;
+	drawSizeUp.x = 490;
 	drawSizeUp.y = 150;
 	drawSizeUp.on("click", function(evt){
 		drawingSizes(+1);
 	});
     
     
-	drawSizeDown.x = 470;
+	drawSizeDown.x = 490;
 	drawSizeDown.y = 190;
 	drawSizeDown.on("click", function(evt){
 		drawingSizes(-1);
@@ -956,6 +1024,11 @@ function changeStageDraw()
 	stage.addChild(purple);
 	stage.addChild(white);
 	stage.addChild(eraser);
+    stage.addChild(orange);
+	stage.addChild(grey);
+	stage.addChild(yellow);
+	stage.addChild(pink);
+	stage.addChild(black);
     
     stage.addChild(drawSizeUp);
     stage.addChild(drawSizeDown);
@@ -1015,32 +1088,33 @@ function createGridMedium()
 
 function changeStageDrawMedium()
 {
-	//Drawing Change
-	var corrHoriz = new createjs.Shape();
 	corrHoriz.x = 500;
 	corrHoriz.y = 0;
-	corrHoriz.graphics.beginFill("#FF0000").beginStroke("#000000");
-    corrHoriz.graphics.drawRect(0, 0, 50, 50);
 	corrHoriz.on("click", function(evt){
 		corridorHoriz = Boolean(!corridorHoriz);
 		corridorVert = Boolean(false);
+		cornerLeft = Boolean(false);
+		cornerRight = Boolean(false);
+		cornerDownL	= Boolean(false);
+		cornerDownR	= Boolean(false);
 	});
 	
-	var corrVert = new createjs.Shape();
+	
+	
 	corrVert.x = 500;
-	corrVert.y = 50;
-	corrVert.graphics.beginFill("#FFFF00").beginStroke("#000000");
-    corrVert.graphics.drawRect(0, 0, 50, 50);
+	corrVert.y = 60;
 	corrVert.on("click", function(evt){
 		corridorVert = Boolean(!corridorVert);
 		corridorHoriz = Boolean(false);
+		cornerLeft = Boolean(false);
+		cornerRight = Boolean(false);
+		cornerDownL	= Boolean(false);
+		cornerDownR	= Boolean(false);
 	});
 	
-	var cornerL = new createjs.Shape();
-	cornerL.x = 550;
+	
+	cornerL.x = 560;
 	cornerL.y = 0;
-	cornerL.graphics.beginFill("#0066FF").beginStroke("#000000");
-    cornerL.graphics.drawRect(0, 0, 50, 50);
 	cornerL.on("click", function(evt){
 		cornerLeft = Boolean(!cornerLeft);
 		cornerRight = Boolean(false);
@@ -1050,11 +1124,9 @@ function changeStageDrawMedium()
 		corridorVert = Boolean(false);
 	});
 	
-	var cornerR = new createjs.Shape();
-	cornerR.x = 550;
-	cornerR.y = 50;
-	cornerR.graphics.beginFill("#FF6699").beginStroke("#000000");
-    cornerR.graphics.drawRect(0, 0, 50, 50);
+	
+	cornerR.x = 560;
+	cornerR.y = 60;
 	cornerR.on("click", function(evt){
 		cornerRight = Boolean(!cornerRight);
 		cornerLeft = Boolean(false);
@@ -1064,11 +1136,9 @@ function changeStageDrawMedium()
 		corridorVert = Boolean(false);
 	});
 	
-	var cornerDR = new createjs.Shape();
-	cornerDR.x = 600;
+	
+	cornerDR.x = 620;
 	cornerDR.y = 0;
-	cornerDR.graphics.beginFill("#006699").beginStroke("#000000");
-    cornerDR.graphics.drawRect(0, 0, 50, 50);
 	cornerDR.on("click", function(evt){
 		cornerDownR = Boolean(!cornerDownR);
 		cornerLeft = Boolean(false);
@@ -1078,11 +1148,9 @@ function changeStageDrawMedium()
 		corridorVert = Boolean(false);
 	});
 	
-	var cornerDL = new createjs.Shape();
-	cornerDL.x = 600;
-	cornerDL.y = 50;
-	cornerDL.graphics.beginFill("#00CC66").beginStroke("#000000");
-    cornerDL.graphics.drawRect(0, 0, 50, 50);
+	
+	cornerDL.x = 620;
+	cornerDL.y = 60;
 	cornerDL.on("click", function(evt){
 		cornerDownL = Boolean(!cornerDownL);
 		cornerLeft = Boolean(false);
@@ -1095,7 +1163,7 @@ function changeStageDrawMedium()
 	//Color Changes
 	var green = new createjs.Shape();
 	green.x = 500;
-	green.y = 300;
+	green.y = 210;
 	green.graphics.beginFill("#00FF00").beginStroke("#000000");
     green.graphics.drawRect(0, 0, 30, 30);
 	green.on("click", function(evt){
@@ -1104,8 +1172,8 @@ function changeStageDrawMedium()
 	});
 	
 	var red = new createjs.Shape();
-	red.x = 530;
-	red.y = 300;
+	red.x = 535;
+	red.y = 210;
 	red.graphics.beginFill("#FF0000").beginStroke("#000000");
     red.graphics.drawRect(0, 0, 30, 30);
 	red.on("click", function(evt){
@@ -1114,8 +1182,8 @@ function changeStageDrawMedium()
 	});
 	
 	var purple = new createjs.Shape();
-	purple.x = 560;
-	purple.y = 300;
+	purple.x = 570;
+	purple.y = 210;
 	purple.graphics.beginFill("#3333FF").beginStroke("#000000");
     purple.graphics.drawRect(0, 0, 30, 30);
 	purple.on("click", function(evt){
@@ -1124,8 +1192,8 @@ function changeStageDrawMedium()
 	});
 	
 	var white = new createjs.Shape();
-	white.x = 500;
-	white.y = 330;
+	white.x = 605;
+	white.y = 210;
 	white.graphics.beginFill("#FFFFFF").beginStroke("#000000");
     white.graphics.drawRect(0, 0, 30, 30);
 	white.on("click", function(evt){
@@ -1134,41 +1202,99 @@ function changeStageDrawMedium()
 	});
 	
 	var eraser = new createjs.Shape();
-	eraser.x = 530;
-	eraser.y = 330;
+	eraser.x = 500;
+	eraser.y = 245;
 	eraser.graphics.beginFill("#0000FF").beginStroke("#000000");
     eraser.graphics.drawRect(0, 0, 30, 30);
 	eraser.on("click", function(evt){
 		mouseColor = 0;
 		mouseCode = 0;
 	});
+    
+    var orange = new createjs.Shape();
+	orange.x = 535;
+	orange.y = 245;
+	orange.graphics.beginFill("#FF9933").beginStroke("#000000");
+    orange.graphics.drawRect(0, 0, 30, 30);
+	orange.on("click", function(evt){
+		mouseColor = 5;
+		mouseCode = 5;
+	});
+    
+    var grey = new createjs.Shape();
+	grey.x = 570;
+	grey.y = 245;
+	grey.graphics.beginFill("#999999").beginStroke("#000000");
+    grey.graphics.drawRect(0, 0, 30, 30);
+	grey.on("click", function(evt){
+		mouseColor = 6;
+		mouseCode = 6;
+	});
+    
+    var yellow = new createjs.Shape();
+	yellow.x = 605;
+	yellow.y = 245;
+	yellow.graphics.beginFill("#FFFF00").beginStroke("#000000");
+    yellow.graphics.drawRect(0, 0, 30, 30);
+	yellow.on("click", function(evt){
+		mouseColor = 7;
+		mouseCode = 7;
+	});
+    
+    var pink = new createjs.Shape();
+	pink.x = 500;
+	pink.y = 280;
+	pink.graphics.beginFill("#FF33CC").beginStroke("#000000");
+    pink.graphics.drawRect(0, 0, 30, 30);
+	pink.on("click", function(evt){
+		mouseColor = 8;
+		mouseCode = 8;
+	});
+    
+    var black = new createjs.Shape();
+	black.x = 535;
+	black.y = 280;
+	black.graphics.beginFill("#393939").beginStroke("#000000");
+    black.graphics.drawRect(0, 0, 30, 30);
+	black.on("click", function(evt){
+		mouseColor = 9;
+		mouseCode = 9;
+	});
 	
 	//Function Buttons
-	var saveButton= new createjs.Shape();
 	saveButton.x = 500;
-	saveButton.y = 400;
-	saveButton.graphics.beginFill("#FF9900").beginStroke("#000000");
-    saveButton.graphics.drawRect(0, 0, 70, 30);
+	saveButton.y = 410;
 	saveButton.on("click", function(evt){
+		console.log("save");
 		saveLevel();
 	});
 	
-	var loadButton = new createjs.Shape();
+    
 	loadButton.x = 500;
-	loadButton.y = 430;
-	loadButton.graphics.beginFill("#CC9900").beginStroke("#000000");
-    loadButton.graphics.drawRect(0, 0, 70, 30);
+	loadButton.y = 440;
 	loadButton.on("click", function(evt){
 		loadLevel();
 	});
 	
-	var clearButton = new createjs.Shape();
+    
 	clearButton.x = 500;
-	clearButton.y = 460;
-	clearButton.graphics.beginFill("#CC9900").beginStroke("#000000");
-    clearButton.graphics.drawRect(0, 0, 70, 30);
+	clearButton.y = 470;
 	clearButton.on("click", function(evt){
-		console.log("clear");
+		clearGrid();
+	});
+	
+	
+	drawSizeUp.x = 650;
+	drawSizeUp.y = 210;
+	drawSizeUp.on("click", function(evt){
+		drawingSizes(+1);
+	});
+    
+    
+	drawSizeDown.x = 650;
+	drawSizeDown.y = 250;
+	drawSizeDown.on("click", function(evt){
+		drawingSizes(-1);
 	});
 	
 	
@@ -1186,6 +1312,14 @@ function changeStageDrawMedium()
 	stage.addChild(purple);
 	stage.addChild(white);
 	stage.addChild(eraser);
+    stage.addChild(orange);
+	stage.addChild(grey);
+	stage.addChild(yellow);
+	stage.addChild(pink);
+	stage.addChild(black);
+    
+    stage.addChild(drawSizeUp);
+    stage.addChild(drawSizeDown);
 	
 	stage.addChild(saveButton);
 	stage.addChild(loadButton);
@@ -1211,10 +1345,10 @@ function createGridLarge()
 	mapBlocks.x = 0;
 	mapBlocks.y = 0;
 	
-	for( var x = 0; x < 70; x++)
+	for( var x = 0; x < 65; x++)
 	{
 		squares[x] = []
-		for(var y = 0; y < 70; y++)
+		for(var y = 0; y < 65; y++)
 		{
 			mapBlocks.x = x*10;
 			mapBlocks.y = y*10;
@@ -1225,17 +1359,17 @@ function createGridLarge()
 		}	
 	}
 	
-	for(var i = 0; i < 70; i++)
+	for(var i = 0; i < 65; i++)
 	{
-		for(var j = 0; j < 70; j++)
+		for(var j = 0; j < 65; j++)
 		{
 			stage.addChild(squares[i][j]);
 			//console.log(j);
 		}
 	}
 	
-	gridHeight = 700;
-	gridWidth = 700;
+	gridHeight = 650;
+	gridWidth = 650;
 	
 	//stage.addChild(squares);
 	stage.update();
@@ -1243,32 +1377,33 @@ function createGridLarge()
 
 function changeStageDrawLarge()
 {
-	var corrHoriz = new createjs.Shape();
-	corrHoriz.x = 700;
+	corrHoriz.x = 650;
 	corrHoriz.y = 0;
-	corrHoriz.graphics.beginFill("#FF0000").beginStroke("#000000");
-    corrHoriz.graphics.drawRect(0, 0, 50, 50);
 	corrHoriz.on("click", function(evt){
 		corridorHoriz = Boolean(!corridorHoriz);
 		corridorVert = Boolean(false);
+		cornerLeft = Boolean(false);
+		cornerRight = Boolean(false);
+		cornerDownL	= Boolean(false);
+		cornerDownR	= Boolean(false);
 	});
 	
 	
-	var corrVert = new createjs.Shape();
-	corrVert.x = 700;
-	corrVert.y = 50;
-	corrVert.graphics.beginFill("#FFFF00").beginStroke("#000000");
-    corrVert.graphics.drawRect(0, 0, 50, 50);
+	
+	corrVert.x = 650;
+	corrVert.y = 60;
 	corrVert.on("click", function(evt){
 		corridorVert = Boolean(!corridorVert);
 		corridorHoriz = Boolean(false);
+		cornerLeft = Boolean(false);
+		cornerRight = Boolean(false);
+		cornerDownL	= Boolean(false);
+		cornerDownR	= Boolean(false);
 	});
 	
-	var cornerL = new createjs.Shape();
-	cornerL.x = 750;
+	
+	cornerL.x = 710;
 	cornerL.y = 0;
-	cornerL.graphics.beginFill("#0066FF").beginStroke("#000000");
-    cornerL.graphics.drawRect(0, 0, 50, 50);
 	cornerL.on("click", function(evt){
 		cornerLeft = Boolean(!cornerLeft);
 		cornerRight = Boolean(false);
@@ -1278,11 +1413,9 @@ function changeStageDrawLarge()
 		corridorVert = Boolean(false);
 	});
 	
-	var cornerR = new createjs.Shape();
-	cornerR.x = 750;
-	cornerR.y = 50;
-	cornerR.graphics.beginFill("#FF6699").beginStroke("#000000");
-    cornerR.graphics.drawRect(0, 0, 50, 50);
+	
+	cornerR.x = 710;
+	cornerR.y = 60;
 	cornerR.on("click", function(evt){
 		cornerRight = Boolean(!cornerRight);
 		cornerLeft = Boolean(false);
@@ -1292,11 +1425,9 @@ function changeStageDrawLarge()
 		corridorVert = Boolean(false);
 	});
 	
-	var cornerDR = new createjs.Shape();
-	cornerDR.x = 800;
+	
+	cornerDR.x = 770;
 	cornerDR.y = 0;
-	cornerDR.graphics.beginFill("#006699").beginStroke("#000000");
-    cornerDR.graphics.drawRect(0, 0, 50, 50);
 	cornerDR.on("click", function(evt){
 		cornerDownR = Boolean(!cornerDownR);
 		cornerLeft = Boolean(false);
@@ -1306,11 +1437,9 @@ function changeStageDrawLarge()
 		corridorVert = Boolean(false);
 	});
 	
-	var cornerDL = new createjs.Shape();
-	cornerDL.x = 800;
-	cornerDL.y = 50;
-	cornerDL.graphics.beginFill("#00CC66").beginStroke("#000000");
-    cornerDL.graphics.drawRect(0, 0, 50, 50);
+	
+	cornerDL.x = 770;
+	cornerDL.y = 60;
 	cornerDL.on("click", function(evt){
 		cornerDownL = Boolean(!cornerDownL);
 		cornerLeft = Boolean(false);
@@ -1322,8 +1451,8 @@ function changeStageDrawLarge()
 	
 	
 	var green = new createjs.Shape();
-	green.x = 700;
-	green.y = 500;
+	green.x = 650;
+	green.y = 300;
 	green.graphics.beginFill("#00FF00").beginStroke("#000000");
     green.graphics.drawRect(0, 0, 30, 30);
 	green.on("click", function(evt){
@@ -1332,8 +1461,8 @@ function changeStageDrawLarge()
 	});
 	
 	var red = new createjs.Shape();
-	red.x = 730;
-	red.y = 500;
+	red.x = 685;
+	red.y = 300;
 	red.graphics.beginFill("#FF0000").beginStroke("#000000");
     red.graphics.drawRect(0, 0, 30, 30);
 	red.on("click", function(evt){
@@ -1342,8 +1471,8 @@ function changeStageDrawLarge()
 	});
 	
 	var purple = new createjs.Shape();
-	purple.x = 760;
-	purple.y = 500;
+	purple.x = 720;
+	purple.y = 300;
 	purple.graphics.beginFill("#3333FF").beginStroke("#000000");
     purple.graphics.drawRect(0, 0, 30, 30);
 	purple.on("click", function(evt){
@@ -1352,8 +1481,8 @@ function changeStageDrawLarge()
 	});
 	
 	var white = new createjs.Shape();
-	white.x = 700;
-	white.y = 530;
+	white.x = 755;
+	white.y = 300;
 	white.graphics.beginFill("#FFFFFF").beginStroke("#000000");
     white.graphics.drawRect(0, 0, 30, 30);
 	white.on("click", function(evt){
@@ -1362,41 +1491,99 @@ function changeStageDrawLarge()
 	});
 	
 	var eraser = new createjs.Shape();
-	eraser.x = 730;
-	eraser.y = 530;
+	eraser.x = 650;
+	eraser.y = 335;
 	eraser.graphics.beginFill("#0000FF").beginStroke("#000000");
     eraser.graphics.drawRect(0, 0, 30, 30);
 	eraser.on("click", function(evt){
 		mouseColor = 0;
 		mouseCode = 0;
 	});
+    
+    var orange = new createjs.Shape();
+	orange.x = 685;
+	orange.y = 335;
+	orange.graphics.beginFill("#FF9933").beginStroke("#000000");
+    orange.graphics.drawRect(0, 0, 30, 30);
+	orange.on("click", function(evt){
+		mouseColor = 5;
+		mouseCode = 5;
+	});
+    
+    var grey = new createjs.Shape();
+	grey.x = 720;
+	grey.y = 335;
+	grey.graphics.beginFill("#999999").beginStroke("#000000");
+    grey.graphics.drawRect(0, 0, 30, 30);
+	grey.on("click", function(evt){
+		mouseColor = 6;
+		mouseCode = 6;
+	});
+    
+    var yellow = new createjs.Shape();
+	yellow.x = 755;
+	yellow.y = 335;
+	yellow.graphics.beginFill("#FFFF00").beginStroke("#000000");
+    yellow.graphics.drawRect(0, 0, 30, 30);
+	yellow.on("click", function(evt){
+		mouseColor = 7;
+		mouseCode = 7;
+	});
+    
+    var pink = new createjs.Shape();
+	pink.x = 650;
+	pink.y = 370;
+	pink.graphics.beginFill("#FF33CC").beginStroke("#000000");
+    pink.graphics.drawRect(0, 0, 30, 30);
+	pink.on("click", function(evt){
+		mouseColor = 8;
+		mouseCode = 8;
+	});
+    
+    var black = new createjs.Shape();
+	black.x = 685;
+	black.y = 370;
+	black.graphics.beginFill("#393939").beginStroke("#000000");
+    black.graphics.drawRect(0, 0, 30, 30);
+	black.on("click", function(evt){
+		mouseColor = 9;
+		mouseCode = 9;
+	});
 	
 	
-	var saveButton= new createjs.Shape();
-	saveButton.x = 700;
-	saveButton.y = 600;
-	saveButton.graphics.beginFill("#FF9900").beginStroke("#000000");
-    saveButton.graphics.drawRect(0, 0, 70, 30);
+	saveButton.x = 650;
+	saveButton.y = 550;
 	saveButton.on("click", function(evt){
+		console.log("save");
 		saveLevel();
 	});
 	
-	var loadButton = new createjs.Shape();
-	loadButton.x = 700;
-	loadButton.y = 630;
-	loadButton.graphics.beginFill("#CC9900").beginStroke("#000000");
-    loadButton.graphics.drawRect(0, 0, 70, 30);
+    
+	loadButton.x = 650;
+	loadButton.y = 585;
 	loadButton.on("click", function(evt){
 		loadLevel();
 	});
 	
-	var clearButton = new createjs.Shape();
-	clearButton.x = 700;
-	clearButton.y = 660;
-	clearButton.graphics.beginFill("#CC9900").beginStroke("#000000");
-    clearButton.graphics.drawRect(0, 0, 70, 30);
+    
+	clearButton.x = 650;
+	clearButton.y = 620;
 	clearButton.on("click", function(evt){
-		console.log("clear");
+		clearGrid();
+	});
+	
+	
+	drawSizeUp.x = 810;
+	drawSizeUp.y = 200;
+	drawSizeUp.on("click", function(evt){
+		drawingSizes(+1);
+	});
+    
+    
+	drawSizeDown.x = 810;
+	drawSizeDown.y = 240;
+	drawSizeDown.on("click", function(evt){
+		drawingSizes(-1);
 	});
 	
 	
@@ -1414,6 +1601,14 @@ function changeStageDrawLarge()
 	stage.addChild(purple);
 	stage.addChild(white);
 	stage.addChild(eraser);
+    stage.addChild(orange);
+	stage.addChild(grey);
+	stage.addChild(yellow);
+	stage.addChild(pink);
+	stage.addChild(black);
+    
+    stage.addChild(drawSizeUp);
+    stage.addChild(drawSizeDown);
 	
 	stage.addChild(saveButton);
 	stage.addChild(loadButton);
@@ -1448,7 +1643,6 @@ function saveLevel()
     
     if(loggedUser)
     {
-        alert("logged in");
         var form = document.createElement('form');
         form.setAttribute("action", '/levelCreator');
         form.setAttribute("method", "POST");

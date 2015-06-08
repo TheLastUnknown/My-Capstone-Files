@@ -1,26 +1,28 @@
 <!doctype html>
 <html>
 	<head>
-        <script src="http://code.createjs.com/createjs-2013.12.12.min.js"></script>
-        <script src="assets/ndgmr.Collision.js"></script>
-		<script src="javascripts/game.js"></script>
-		<title>Level Creator</title>
-        <style>
-            body
-            {
-                background-color: #999999;
-            }
-        </style>
-	</head>
-	<body>
-        <center class="game">
-            <div id="levelCreator"></div>
-        </center>
-		<center class="game">
-            <div id="gameTest"></div>
-        </center>
+        <link rel="stylesheet" type="text/css" href="stylesheets/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
         
-        <%= username%>
-        <% if(username){console.log('blar'); }%>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="javascripts/bootstrap.min.js"></script>
+	</head>
+    
+	<body>
+        
+        <div class="content">
+        
+            <% include ../partials/header.ejs %>
+            
+            <div class="gameImages">
+                <a class="toCreator" href="/levelCreator"><img/>To Level Creator</a>
+
+                <a class="toGame" href="/game"><img/>To Game</a>
+
+            </div>
+            <% include ../partials/footer.ejs %>
+        
+        </div>
+        
 	</body>
 </html>

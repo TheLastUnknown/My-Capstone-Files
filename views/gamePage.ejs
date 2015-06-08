@@ -15,35 +15,35 @@
                    var loggedUser = null;
                 <%}
             %>
+                    
+                var thoseLevels = [];
+                thoseLevels = <%-JSON.stringify(gameLevels)%>
         </script>
         
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="javascripts/bootstrap.min.js"></script>
         <script src="http://code.createjs.com/createjs-2013.12.12.min.js"></script>
         <script src="assets/ndgmr.Collision.js"></script>
+		<script src="javascripts/game.js"></script>
         
-        
-        
-		<script src="javascripts/levelCreate.js"></script>
-        
+
+        </script>
 		<title>Level Creator</title>
-        <style>
-            body
-            {
-                background-color: #999999;
-            }
-        </style>
 	</head>
 	<body>
         
         <div class="content">
+        
             <% include ../partials/header.ejs %>
-
+        
             <center class="game content">
-                <div id="levelCreator"></div>
+                <div id="gameTest"></div>
             </center>
 
             <% include ../partials/footer.ejs %>
+            
         </div>
+        
+        
 	</body>
 </html>

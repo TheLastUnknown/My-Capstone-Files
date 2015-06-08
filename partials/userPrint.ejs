@@ -5,9 +5,10 @@
 <ul>
 <% 
     //console.log(users.length);
-    for(var i = 0; i < users.length; i++)
+    for(var i = 0; i < gameLevels.length; i++)
     {%>
-    <li><%= users[i].username;%></li>
+    <li><%= gameLevels[i].username;%></li>
+    <li><%= gameLevels[i].levelPattern;%></li>
     <%}
 %>
 </ul>

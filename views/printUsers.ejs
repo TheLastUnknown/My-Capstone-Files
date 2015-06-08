@@ -1,20 +1,25 @@
+<!doctype html>
 <html>
 	<head>
-		<title>Level Creator</title>
-        <style>
-            body
-            {
-                background-color: #999999;
-            }
-        </style>
+        <link rel="stylesheet" type="text/css" href="stylesheets/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="javascripts/bootstrap.min.js"></script>
 	</head>
+    
 	<body>
         
+        <% include ../partials/header.ejs %>
+
         <% include ../partials/userPrint.ejs %>
-        
+
         <% include ../partials/levelPrint.ejs %>
+
+        <% include ../partials/footer.ejs %>
         
-        <%= test%>
+        <% levelTimes%>
         
 	</body>
+    
 </html>

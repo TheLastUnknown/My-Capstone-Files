@@ -1,0 +1,11 @@
+<%
+    if(user)
+    {%>
+        <% include ./userWindow.ejs %>
+
+    <%}
+    else
+    {%>
+        <% include ./loginWindow.ejs %>
+    <%}
+%>

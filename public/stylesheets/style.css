@@ -1,8 +1,91 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+body 
+{
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    background-color: #999999;
+    margin: 0px auto;
 }
 
-a {
-  color: #00B7FF;
+.content
+{
+    width: 960px;
+    margin: 0 auto;
+}
+
+header
+{
+    
+}
+
+footer
+{
+    text-align: center;
+}
+
+#myModal .modal-dialog
+{
+    width: 300px;
+}
+
+#myModal .modal-body
+{
+    text-align: center;
+}
+
+.navbar
+{
+    margin-bottom: 0px;
+}
+
+.navbar .nav
+{
+    float: right;
+}
+
+.navbar .userButton
+{
+    
+}
+
+.gameImages
+{
+    width: 880px;
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.gameImages img
+{
+    width: 200px;
+    height: 200px;
+}
+
+.game
+{
+    margin-top: 20px;
+}
+
+#gameTest canvas
+{
+   
+    background-image: linear-gradient(bottom, rgb(37,9,115) 40%, rgb(101,60,176) 0%);
+    background-image: -o-linear-gradient(bottom, rgb(37,9,115) 40%, rgb(101,60,176) 0%);
+    background-image: -moz-linear-gradient(bottom, rgb(37,9,115) 40%, rgb(101,60,176) 0%);
+    background-image: -webkit-linear-gradient(bottom, rgb(37,9,115) 40%, rgb(101,60,176) 0%);
+    background-image: -ms-linear-gradient(bottom, rgb(37,9,115) 40%, rgb(101,60,176) 0%);
+
+    background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.4, rgb(37,9,115)),
+    color-stop(0, rgb(101,60,176))
+    );
+}
+
+.loggingIn
+{
+    width: 400px;
+    margin-top: 20px;
 }

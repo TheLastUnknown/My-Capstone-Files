@@ -1,0 +1,25 @@
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">TimeRunner</a>
+        </div>
+        
+        <ul class="nav navbar-nav">
+            <li class="<%= title=='Home'?'active':undefined%>"><a href="/">Home</a></li>
+            
+            <li class="<%= title=='Game'?'active':undefined%>"><a href="/game">Game</a></li>
+            
+            <li class="<%= title=='LevelCreator'?'active':undefined%>"><a href="/levelCreator">Level Creator</a></li>
+            
+            <li class="<%= title=='Login'?'active':undefined%>"><a href="/login">Login</a></li>
+            
+            <li class="<%= title=='Register'?'active':undefined%>"><a href="/signup">Register</a></li>
+            
+            <li class="<%= title=='printUsers'?'active':undefined%>"><a href="printUsers">PrintAllPage</a></li>
+            
+            <li> <% include ../partials/userCheckPartial.ejs %> </li>
+        </ul>
+        
+    </div>
+</nav>

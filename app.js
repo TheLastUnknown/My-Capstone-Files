@@ -21,6 +21,7 @@ var LocalStrategy = require("passport-local").Strategy;
 var expressSession = require('express-session');
 
 var User = require('./models/user');
+var LevelTimes = require('./models/levelTimes');
 var CreatedLevel = require('./models/createdLevel');
 
 // view engine setup
@@ -34,13 +35,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-//app.use(express.session());
 app.use(expressSession({secret: 'mySecretKey'}));
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/', routes);
 app.use('/users', users);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -86,8 +87,16 @@ CreatedLevel.find({}).lean().exec(function(err, docs)
     app.locals.levels = docs;
 });
 
+CreatedLevel.find({username:'gameLevels'}).lean().exec(function(err,docs)
+{
+    app.locals.gameLevels = docs;
+});
 
-app.locals.test = "test";
+LevelTimes.find({}).lean().exec(function(err, docs)
+{
+    console.log(docs.length);
+    app.locals.levelTimes = docs;
+});
 
 passport.serializeUser(function(user,done)
 {
@@ -104,7 +113,9 @@ passport.deserializeUser(function(id,done){
 passport.use('login', new LocalStrategy({
     passReqToCallback : true
     },
-    function(req,username,password,done){
+    function(req,username,password,done)
+    {
+        console.log("logging in");
         User.findOne({'username' : username},
             function(err,user)
             {
@@ -142,6 +153,7 @@ passport.use('signup', new LocalStrategy({
   },
     function(req, username, password, done) 
     {
+        console.log("here");
         findOrCreateUser = function()
         {
             // find a user in Mongo with provided username

@@ -11,18 +11,22 @@ var frameCount = 0;
 var score = 0;
 var world;
 //Key codes: A=65, W=87, D=68, S=83, Space=32, Enter=13
-var KEY_A = 65, KEY_W = 87, KEY_D = 68, KEY_S = 83, KEY_SPACE = 32, KEY_ENT = 13, KEY_END = 80, KEY_J = 74, KEY_K = 75;
+var KEY_A = 65, KEY_W = 87, KEY_D = 68, KEY_S = 83, KEY_SPACE = 32, KEY_ENT = 13, KEY_END = 80, KEY_J = 74, KEY_K = 75, KEY_L= 76;
 
 var DOWN = "D", RIGHT = "R", LEFT="L", UP="U", REDOWN="~D", RERIGHT="~R", RELEFT="~L", REUP="~U";
 
 document.onkeydown = keyDownTest;
 document.onkeyup = keyUpTest;
 
+var startTime, finalLevelTime;
 
 var canvas, stage, queue;
 
 var mouseX, mouseY, timer, scoreCount;
 
+var background;
+
+var levelNumber = 0;
 
 var title, instructionScreen, gameOver;
 var playButton, tutorialButton, menuButton; //Menu Buttons
@@ -91,7 +95,12 @@ function loop() {
     bulletChecking();
     moveEnemy();
     endTheLevel();
+    parallaxBackground();
 	stage.update();
+    
+    var currentTime = (new Date()).getTime();
+    
+    finalLevelTime = (currentTime-startTime)/1000;
     
     if(player.health <= 0)
     {
@@ -219,7 +228,7 @@ function multiKeys(e)
         moveLeft = false; moveRight = true;
     }
     
-    if(moreKeys[KEY_W])
+    if(moreKeys[KEY_L])
     {
         moveUp = true;
     }
@@ -249,7 +258,7 @@ function multiKeys(e)
         moveRight = false; 
     }
     
-    if(!moreKeys[KEY_W])
+    if(!moreKeys[KEY_L])
     {
         moveUp = false; 
     }
@@ -317,7 +326,7 @@ function keyQueue()
             console.log("combo " + i + " entered");
             if(i = 4)
             {
-                playerUltimateAttack();
+                superSpeed();
             }
             pressedKeys = [];
         }
@@ -445,6 +454,11 @@ function loadComplete(evt)
     
     testEnemy = new createjs.Bitmap(queue.getResult("orb"));
     
+    
+    setBackground();
+    
+    
+    
     //setPlayer();
     
 //	displaySprites();
@@ -472,6 +486,87 @@ function loadFiles() {
     queue.loadManifest(fileManifest);
     
 }
+
+function setBackground()
+{
+    background = createBackgroundGrid(8,4);
+    stage.addChildAt(background,0);
+}
+
+function createBackgroundGrid(numX, numY)
+{
+    var grid = new createjs.Container();
+    grid.snapToPixel = true;
+    // calculating the distance between
+    // the grid-lines
+    var gw = CANVAS_WIDTH/numX;
+    var gh = CANVAS_HEIGHT/numY;
+    // drawing the vertical line
+    var verticalLine = new createjs.Graphics();
+    verticalLine.beginFill("#653cb0");
+    verticalLine.drawRect(0,0,gw * 0.02,gh*(numY+2));
+    var vs;
+    // placing the vertical lines:
+    // we're placing 1 more than requested
+    // to have seamless scrolling later
+    for ( var c = -1; c < numX+1; c++) {
+        vs = new createjs.Shape(verticalLine);
+        vs.snapToPixel = true;
+        vs.x = c * gw;
+        vs.y = -gh;
+        grid.addChild(vs);
+    }
+    // drawing a horizontal line
+    var horizontalLine = new createjs.Graphics();
+    horizontalLine.beginFill("#653cb0");
+    horizontalLine.drawRect(0,0,gw*(numX+1),gh * 0.02);
+    var hs;
+    // placing the horizontal lines:
+    // we're placing 1 more than requested
+    // to have seamless scrolling later
+    for ( c = -1; c < numY+1; c++ ) {
+        hs = new createjs.Shape(horizontalLine);
+        hs.snapToPixel = true;
+        hs.x = 0;
+        hs.y = c * gh;
+        grid.addChild(hs);
+    }
+ 
+    // return the grid-object
+    return grid;
+}
+
+function parallaxBackground()
+{
+    background.x = (world.x *.5) % (CANVAS_WIDTH/8);
+    background.y = (world.y *.5) % (WORLD_HEIGHT/4);
+}
+
+function checkLevelPatterns()
+{
+    for(var i = 0; i < thoseLevels.length; i++)
+    {
+        //console.log(thoseLevels[i].levelPattern);
+        loadNewLevel();
+    }
+}
+
+function trackLevelTime()
+{
+    
+}
+
+function levelKeys()
+{
+    
+}
+
+function openExit()
+{
+    
+}
+
+
 
 var hitbox;
 var attackbox;
@@ -673,17 +768,32 @@ function init() {
     GAME_STATE = "inGame";
     stage.removeChild(title);
     world.x = world.y = 0;
+    startTime = (new Date()).getTime();
+    
     unloadStartButtons();
+    
+    gameSetup();
+    
+    startLoop();
+	
+}
+
+function gameSetup()
+{
     levelEnd();
-    loadLevel();
+    switchLevel();
     loadEnemies();
 	setPlayer();
     displayPlayerHealth();
     declareCombos();
     declareProjectile();
+}
+
+function resetForLevel()
+{
+    world.removeAllChildren();
     
-    startLoop();
-	
+    gameSetup();
 }
 
 //world
@@ -744,7 +854,7 @@ function loadEnemies()
     testEnemy.x = 1600;
     testEnemy.y = 1650;
     
-    testEnemy.health = 10;
+    testEnemy.health = 2;
     
     testEnemy.width = testEnemy.getBounds().width;
     testEnemy.height = testEnemy.getBounds().height;
@@ -799,18 +909,20 @@ function setEnemyPath()
 
 function moveEnemy()
 {
-    if(Enemies[0].y < Enemies[0].topY)
+    for(var i = 0; i < Enemies.length; i++)
     {
-        Enemies[0].velY = 2;
+        if(Enemies[i].y < Enemies[0].topY)
+        {
+            Enemies[0].velY = 2;
+        }
+
+        if(Enemies[i].y > Enemies[0].bottomY)
+        {
+            Enemies[0].velY = -2;
+        }
+
+        Enemies[i].y += Enemies[i].velY;
     }
-    
-    if(Enemies[0].y > Enemies[0].bottomY)
-    {
-        Enemies[0].velY = -2;
-    }
-    
-    Enemies[0].y += Enemies[0].velY;
-    console.log(Enemies[0].y + "," +Enemies[0].bottomY + "," +  Enemies[0].topY);
     
 }
 
@@ -1004,15 +1116,21 @@ function movePlayer()
 
 function moving()
 {
-	
+	//console.log(player.speed);
+    
+    if(player.velX > player.dashSpeed)
+    {
+        console.log("blar " + player.speed);
+    }
+    
 	if(player.velX > -player.speed && moveLeft)
 	{
-		player.velX--;
+		player.velX -= 1.5;
         
 	}
 	else if(player.velX < player.speed&& moveRight)
 	{
-		player.velX++;
+		player.velX += 1.5;
 	}
 	if(!player.isJumping && moveUp)
 	{
@@ -1026,14 +1144,14 @@ function moving()
         player.isJumping = false;
         if(flipped)
         {
-            console.log("go1");
+            //console.log("go1");
             player.isJumping = true;
             player.velX = 10;
             player.velY = -player.runSpeed*2;
         }
         else
         {
-            console.log("go2");
+            //console.log("go2");
             player.isJumping = true;
             player.velX = -10;
             player.velY = -player.runSpeed*2;
@@ -1060,7 +1178,7 @@ function checkPlayer()
 	//console.log(player.y);
     //console.log(player.isTouchingWall);
     
-    //console.log(player.isGrounded);
+    //console.log(player.speed);
     
     playerAttacking();
 }
@@ -1621,11 +1739,11 @@ function attackCollision()
         
         if(player.currentFrame == 51)
         {
-            console.log("hit");
+            //console.log("hit");
             Enemies[hit.index].health--;
         }
         
-        console.log(player.currentFrame);
+        //console.log(player.currentFrame);
         
         if(Enemies[hit.index].health <= 0)
         {
@@ -1642,16 +1760,18 @@ function stopDash()
 {
     if(player.isGrounded)
     {
+        
         window.clearTimeout(stopDash);
-        if(moveLeft || moveRight)
+        if((moveLeft || moveRight) && (anim != "right") && (anim != "left") && (anim != "dash"))
         {
+            //console.log("what");
             player.gotoAndPlay("dash3");
             anim = "stand";
         }
         player.isDashing = false;
         dashing = false;
         player.speed = runSpeed;
-        console.log("stop");
+        //console.log("stop");
         stopped = false;
     }
     else
@@ -1788,6 +1908,19 @@ function playerCamera()
     
 }
 
+function superSpeed()
+{
+    player.speed = 10000000;
+    
+    window.setTimeout(endSpeed, 2000);
+}
+
+function endSpeed()
+{
+    console.log("blar");
+    player.speed = 3;
+}
+
 var ultAttack;
 
 function playerUltimateAttack()
@@ -1812,6 +1945,19 @@ function ultEnd()
     player.canBeHurt = true;
 }
 
+
+var collectables = [];
+
+function placeCollectables()
+{
+    
+}
+
+function openExit()
+{
+    
+}
+
 var levelEnder;
 
 function levelEnd()
@@ -1831,6 +1977,15 @@ function levelEnd()
     world.addChild(levelEnder);
 }
 
+function resetGame()
+{
+    finalLevelTime = 0;
+    levelNumber = 0;
+    Enemies = [];
+    platforms = [];
+    bullets = [];
+}
+
 function endTheLevel()
 {
     var collide = null;
@@ -1844,8 +1999,160 @@ function endTheLevel()
         }
         else
         {
-            GAME_STATE = "gameOver";
+            //write to levelTime db if logged in
+            if(loggedUser)
+            {
+                saveLevelTime();
+                levelNumber++;
+                resetForLevel();
+                
+            }
+            else
+            {
+                levelNumber++;
+                resetForLevel();
+            }
+            //GAME_STATE = "gameOver";
         }
+}
+
+function saveLevelTime()
+{
+     if(loggedUser)
+            {
+                var form = document.createElement('form');
+                form.setAttribute("action", '/game');
+                form.setAttribute("method", "POST");
+
+                var hiddenFieldOne = document.createElement('input');
+                hiddenFieldOne.setAttribute('type', 'number');
+                hiddenFieldOne.setAttribute('name', 'levelNumber');
+                hiddenFieldOne.setAttribute('value', levelNumber);
+
+                var hiddenFieldTwo = document.createElement('input');
+                hiddenFieldTwo.setAttribute('type', 'text');
+                hiddenFieldTwo.setAttribute('name', 'username');
+                hiddenFieldTwo.setAttribute('value', loggedUser);
+                
+                var hiddenFieldThree = document.createElement('input');
+                hiddenFieldTwo.setAttribute('type', 'number');
+                hiddenFieldTwo.setAttribute('name', 'levelTime');
+                hiddenFieldTwo.setAttribute('value', finalLevelTime);
+
+                form.appendChild(hiddenFieldOne);
+                form.appendChild(hiddenFieldTwo);
+                form.appendChild(hiddenFieldThree);
+
+                document.body.appendChild(form);
+                form.submit();
+
+                document.body.removeChild(form);
+            }
+}
+
+function switchLevel()
+{
+    //find createdLevels where user = gameLevels
+    //should be an array of 5 to 7
+    //once that array is made, game will populate with level 1
+    //upon level completion, move on until end of Array
+    //Display final game over, give option to go back to main menu
+    //now, on main menu, allow for loading of other levels
+    
+    finalLevelTime = 0;
+    Enemies = [];
+    platforms = [];
+    bullets = [];
+    loadNewLevel();
+}
+
+function loadNewLevel()
+{
+    console.log(levelNumber + "," + thoseLevels.length);
+    if(levelNumber >= thoseLevels.length)
+    {
+        GAME_STATE = "gameOver";
+    }
+    else
+    {
+        var newLevel = thoseLevels[levelNumber].levelPattern;
+
+        var loadedLevel = newLevel.split(",");
+
+        //console.log(loadedLevel);
+        drawLevel(loadedLevel);
+    }
+}
+
+function drawLevel(level)
+{
+    var space = "0", wall = "1", item = "2", enemyPlace = "3", instaDeath = "4", collect = "5", boss = "6", passPlat = "7", levelEnd = "8", playerSpawn = "9";
+    
+    var placeX = 25, placeY = 25;
+    
+    var platNumber = 0;
+    
+    var offset = 2;
+    
+    for(var i = 0; i < ((level.length-2)/level[0]); i++)
+    {
+        placeY = 0;
+        for(var j = 0; j < ((level.length-2)/level[1]); j++)
+        {
+            
+            var newSpace = level[offset];
+            
+            if(newSpace == playerSpawn)
+            {
+                console.log("WORK");
+            }
+            
+            switch(newSpace)
+            {
+                case space: break;
+                case wall: 
+                    platforms[platNumber] = testPlatform.clone();
+                    platforms[platNumber] = new createjs.Bitmap(queue.getResult("platTest"));
+                    platforms[platNumber].width = platforms[platNumber].getBounds().width;
+                    platforms[platNumber].height = platforms[platNumber].getBounds().height;
+                    platforms[platNumber].regX = platforms[platNumber].getBounds().width/2;
+                    platforms[platNumber].regY = platforms[platNumber].getBounds().height/2;
+                    platforms[platNumber].x = placeX;
+                    platforms[platNumber].y = placeY;
+                    platNumber++;
+                    break; //platform
+                case item: break; //item
+                case enemyPlace: break; //enemy
+                case instaDeath: 
+                     //tempPlayer, should be hazard
+                case collect: 
+                    
+                    break; //collect
+                case boss: break; //boss
+                case passPlat: break; //passPlat
+                case levelEnd: 
+                    levelEnder.x = placeX;
+                    levelEnder.y = placeY;
+                    break; //fakePlat
+                case playerSpawn:
+                    
+                    playerStartX = placeX;
+                    playerStartY = placeY;
+                    break; //playerSpawn   
+            }
+
+            placeY +=50;
+            offset++;
+        }
+        placeX += 50;
+    }
+    
+    console.log(playerStartX);
+    
+    for(var i = 0; i < platforms.length; i++)
+    {
+        world.addChild(platforms[i]);
+    }
 }
 
 var fullLeverArray = [];
